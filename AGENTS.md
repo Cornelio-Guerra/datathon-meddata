@@ -6,7 +6,7 @@
 - Usar siempre el entorno virtual del repositorio: `.venv`.
 - Intérprete: `.venv/Scripts/python.exe`.
 - El análisis personal de Jesus va únicamente en `notebooks/analisis/analisis_jesus.ipynb`.
-- No modificar ni ejecutar para guardar cambios el notebook de Cornelio: `notebooks/analisis/analisis_cornelio.ipynb`.
+- No modificar ni ejecutar para guardar cambios el notebook de Cornelio: `notebooks/analisis_cornelio.ipynb`.
 
 ## Trabajo colaborativo
 
