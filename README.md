@@ -181,7 +181,6 @@ src/score_diabetes.py                  motor de puntuación (sin dependencias de
 notebooks/analisis_cornelio.ipynb      análisis completo y hallazgos
 notebooks/analisis/analisis_jesus.ipynb análisis complementario
 dashboard/                             dashboard interactivo
-docs/instrucciones_datathon.md         instrucciones del reto
 docs/transcripcion_datathon.md         transcripción consolidada del audio
 outputs/                               gráficas y tabla de puntuación
 USO_DE_IA.md                           declaración de uso de IA (exigida por el reglamento)

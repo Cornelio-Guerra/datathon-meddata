@@ -7,3 +7,7 @@ outputs/*.png
 
 docs/USO_DE_IA_borrador_local.md
 .claude/
+docs/defensa_jurado.md
+docs/guia_presentacion_meddata.md
+.vscode/
+*.code-workspace
