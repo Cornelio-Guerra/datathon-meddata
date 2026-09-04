@@ -5,8 +5,12 @@ convierten en puntos enteros dividiendo por una constante de referencia.
 Solo estadistica descriptiva, tablas de contingencia y aritmetica.
 """
 import numpy as np, pandas as pd
+from pathlib import Path
 
-RUTA = "data/diabetes_012_health_indicators_BRFSS2015.csv"
+# Ruta absoluta respecto a este archivo: funciona desde cualquier carpeta
+# (raiz, notebooks/ o dashboard/)
+RAIZ = Path(__file__).resolve().parent.parent
+RUTA = RAIZ / "data" / "diabetes_012_health_indicators_BRFSS2015.csv"
 
 # ---------------------------------------------------------------- 1. CARGA
 df = pd.read_csv(RUTA)
@@ -127,4 +131,4 @@ if __name__ == "__main__":
     print(f"  VPP          : {vpp*100:.1f}%")
     print(f"  VPN          : {vpn*100:.1f}%")
     print(f"  AUC (Mann-Whitney, sin sklearn): {auc:.4f}")
-    T.to_csv("outputs/tabla_puntuacion.csv", index=False)
+    T.to_csv(RAIZ / "outputs" / "tabla_puntuacion.csv", index=False)
