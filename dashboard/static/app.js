@@ -30,7 +30,7 @@ function loading(targets) {
 function createBarChart(node, items, options = {}) {
   node.replaceChildren();
   if (!items?.length) return empty(node);
-  const max = Math.max(...items.map((item) => item.rate), 1);
+  const max = Number.isFinite(options.max) ? options.max : Math.max(...items.map((item) => item.rate), 1);
   for (const [index, item] of items.entries()) {
     const row = create("div", "bar-row");
     row.append(create("span", "bar-label", item.label));
@@ -38,9 +38,10 @@ function createBarChart(node, items, options = {}) {
     const fill = create("span", `bar-fill ${index === 0 && options.highlight ? "amber" : ""}`);
     fill.style.width = "0%";
     const targetWidth = `${Math.max((item.rate / max) * 100, 2)}%`;
-    fill.title = `${item.label}: ${formatRate(item.rate)} (${formatNumber.format(item.n ?? item.count ?? 0)} registros)`;
+    const formattedValue = options.formatValue ? options.formatValue(item.rate) : formatRate(item.rate);
+    fill.title = `${item.label}: ${formattedValue} (${formatNumber.format(item.n ?? item.count ?? 0)} registros)`;
     track.append(fill);
-    row.append(track, create("span", "bar-value", formatRate(item.rate)));
+    row.append(track, create("span", "bar-value", formattedValue));
     node.append(row);
     
     // Trigger animation after append
@@ -50,6 +51,82 @@ function createBarChart(node, items, options = {}) {
       });
     });
   }
+}
+
+function renderChartSuite(data) {
+  const score = data.score || {};
+  const metrics = score.metrics || {};
+  const riskRows = (score.risk_distribution || []).map((item) => ({
+    label: `${item.level} · ${item.range}`,
+    rate: Number(item.prevalence),
+    n: item.n,
+  }));
+
+  createBarChart(byId("risk-prevalence-chart"), riskRows, { highlight: true, max: 100 });
+  createBarChart(byId("score-performance-chart"), [
+    { label: "Sensibilidad", rate: Number(metrics.sensitivity), n: metrics.total_diabetics },
+    { label: "Especificidad", rate: Number(metrics.specificity) },
+    { label: "VPP", rate: Number(metrics.ppv) },
+    { label: "VPN", rate: Number(metrics.npv) },
+  ].filter((item) => Number.isFinite(item.rate)), { highlight: true, max: 100 });
+
+  const aucRows = (data.model_comparison || []).map((item) => ({
+    label: item.approach.replace("Score Estadístico (Sullivan / Framingham)", "Score Sullivan"),
+    rate: Number(item.auc) * 100,
+  })).filter((item) => Number.isFinite(item.rate));
+  createBarChart(byId("auc-comparison-chart"), aucRows, {
+    highlight: true,
+    max: 100,
+    formatValue: (value) => (value / 100).toFixed(3),
+  });
+
+  createBarChart(byId("charts-age-chart"), data.age_rates || [], { highlight: true, max: 100 });
+  createBarChart(byId("charts-bmi-chart"), data.bmi_rates || [], { highlight: true, max: 100 });
+
+  const insight = byId("risk-prevalence-insight");
+  insight.replaceChildren();
+  if (riskRows.length >= 2) {
+    const low = riskRows[0];
+    const high = riskRows[riskRows.length - 1];
+    const multiplier = low.rate > 0 ? (high.rate / low.rate).toFixed(1) : "—";
+    insight.append(
+      create("small", "", "SEPARACIÓN ENTRE EXTREMOS"),
+      create("strong", "", `${multiplier}× más prevalencia`),
+      create("p", "", `El nivel ${high.label.split(" · ")[0]} alcanza ${formatRate(high.rate)}, frente a ${formatRate(low.rate)} en el nivel ${low.label.split(" · ")[0]}.`),
+    );
+  } else {
+    empty(insight);
+  }
+}
+
+function setupDashboardTabs() {
+  const tabs = [...document.querySelectorAll(".dashboard-tab")];
+  const panels = [...document.querySelectorAll(".dashboard-view")];
+
+  const activate = (tab, moveFocus = true) => {
+    const targetId = tab.dataset.tabTarget;
+    for (const candidate of tabs) {
+      const selected = candidate === tab;
+      candidate.classList.toggle("is-active", selected);
+      candidate.setAttribute("aria-selected", String(selected));
+      candidate.tabIndex = selected ? 0 : -1;
+    }
+    for (const panel of panels) panel.hidden = panel.id !== targetId;
+    if (moveFocus) tab.focus();
+  };
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => activate(tab));
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const nextIndex = event.key === "Home" ? 0
+        : event.key === "End" ? tabs.length - 1
+        : event.key === "ArrowRight" ? (index + 1) % tabs.length
+        : (index - 1 + tabs.length) % tabs.length;
+      activate(tabs[nextIndex]);
+    });
+  });
 }
 
 function renderFilters(filters) {
@@ -311,12 +388,13 @@ function render(data) {
   createBarChart(byId("bmi-chart"), data.bmi_rates, { highlight: true });
   renderSegments(data.segments);
   renderModel(data.model);
+  renderChartSuite(data);
   renderQuality(data.quality, data.protocol);
   renderMethod(data.method);
 }
 
 async function refresh() {
-  loading(["kpis", "distribution-chart", "factor-list", "age-chart", "bmi-chart"]);
+  loading(["kpis", "distribution-chart", "factor-list", "age-chart", "bmi-chart", "risk-prevalence-chart", "score-performance-chart", "auc-comparison-chart", "charts-age-chart", "charts-bmi-chart"]);
   const query = new URLSearchParams(Object.entries(state.filters).filter(([, value]) => value && value !== "Todos"));
   try {
     const response = await fetch(`/api/dashboard?${query.toString()}`);
@@ -381,4 +459,5 @@ if (calcForm) {
   });
 }
 
+setupDashboardTabs();
 refresh();
