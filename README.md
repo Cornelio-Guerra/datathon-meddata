@@ -1,162 +1,123 @@
-# Datathon MedData Challenge — entorno de trabajo
+# Sistema de puntuación de riesgo de diabetes
 
-**Evento:** jueves 4 de septiembre de 2026, 1:00–4:00 pm · presencial · 3 horas
-· análisis de datos de salud.
+**MedData Challenge — "Transformando datos médicos en soluciones inteligentes"**
+Universidad Tecnológica de Panamá · 4 de septiembre de 2026
+
+**Equipo:** Cornelio Guerra · Jesús
 
 ---
 
-## Activar el entorno
+## El problema
 
-Desde la carpeta `datathon-meddata/`:
+El sistema de salud necesita detectar patrones de diabetes en miles de registros
+y decidir **a quién derivar primero** a prueba confirmatoria, cuando los recursos
+diagnósticos son limitados.
 
-```bash
-source .venv/bin/activate
+## La solución
+
+Un **sistema de puntuación clínica** que asigna puntos por factor de riesgo y
+clasifica al paciente en cuatro niveles. Se aplica **en papel, sin computadora y
+sin laboratorio** — solo con preguntas de entrevista.
+
+El método es el de **Sullivan (framework de Framingham)**: para cada factor se
+calcula su *odds ratio* contra un nivel de referencia y se convierte a puntos
+enteros dividiendo por una constante de calibración,
+
+```
+puntos = round( ln(OR) / B )
 ```
 
-Comando completo desde cualquier ubicación (cópialo tal cual):
+donde `B` es el menor `ln(OR)` positivo observado. Así **un punto equivale
+siempre al mismo incremento de riesgo**, que es lo que hace el score sumable e
+interpretable por un médico.
+
+## Resultados
+
+| Métrica | Valor |
+|---|---|
+| **AUC** | **0.798** — Mann-Whitney implementado a mano |
+| **Sensibilidad** (corte ≥ 7) | **85.5%** — detecta 29,867 de 34,926 diabéticos |
+| Especificidad | 58.5% |
+| **Valor predictivo negativo** | **95.6%** |
+| Inconsistencias detectadas | **24,704** |
+| Registros analizados | 253,680 → 228,976 tras depuración |
+
+**Estratificación de riesgo** — el score separa 11 veces entre extremos:
+
+| Nivel | Score | Prevalencia de diabetes |
+|---|---|---|
+| Bajo | ≤ 6 | 4.4% |
+| Moderado | 7–9 | 17.9% |
+| Alto | 10–12 | 33.1% |
+| Muy alto | ≥ 13 | 49.2% |
+
+### Por qué el umbral está en 7
+
+**No se eligió maximizando accuracy.** Se eligió por el costo clínico del error:
+en tamizaje, un falso negativo es un paciente que se va a casa sin diagnóstico;
+un falso positivo solo genera una prueba confirmatoria barata. Por eso se
+priorizó sensibilidad.
+
+## Hallazgos
+
+1. **El 10% del dataset es ruido duplicado.** 23,899 duplicados exactos, 805 IMC
+   fisiológicamente imposibles y 7,838 contradicciones lógicas. Sin un control de
+   calidad previo, una de cada diez decisiones se toma sobre un registro repetido.
+
+2. **La salud autopercibida predice mejor que varios marcadores clínicos.** Quien
+   califica su salud como "mala" tiene 38.9% de diabetes contra 3.3% de quien la
+   califica "excelente" — un *odds ratio* de 18.8, el más alto de las 22
+   variables, por encima de presión alta (4.6) y colesterol (3.1). Es una
+   pregunta que cuesta cero y ordena mejor que un análisis de sangre.
+
+3. **Diez preguntas estratifican el riesgo 11 veces, sin laboratorio.** Derivando
+   al 48% de mayor puntaje se captura el 85.5% de los diabéticos, y cuando el
+   sistema dice "bajo riesgo" acierta el 95.6% de las veces.
+
+## Cómo ejecutarlo
 
 ```bash
-source /Users/cornelio/Desktop/UTP/2026/Concursos/Medata/datathon-meddata/.venv/bin/activate
-```
-
-Para salir: `deactivate`. Verás `(.venv)` al inicio del prompt cuando esté activo.
-
-### Abrir Jupyter
-
-```bash
-cd /Users/cornelio/Desktop/UTP/2026/Concursos/Medata/datathon-meddata
-source .venv/bin/activate
-jupyter lab            # o: jupyter notebook
-```
-
-### Comprobar que todo está bien (5 segundos)
-
-```bash
-python -c "import pandas, numpy, matplotlib, seaborn, sklearn, openpyxl; print('OK')"
-```
-
-### Si algo se rompe y hay que reinstalar
-
-```bash
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+
+python src/score_diabetes.py       # reproduce todas las cifras de arriba
 ```
 
----
+**Dashboard interactivo** (no requiere dependencias externas):
+
+```bash
+cd dashboard && python app.py      # http://localhost:8000
+```
+
+> La primera carga procesa 253,680 registros y tarda ~10 s; a partir de ahí es
+> instantánea gracias al caché.
 
 ## Estructura
 
 ```
-datathon-meddata/
-├── .venv/                  entorno virtual (Python 3.9.6)
-├── data/                   datasets de práctica
-│   ├── pima_diabetes.csv
-│   ├── heart_disease.csv
-│   └── stroke_prediction.csv
-├── notebooks/
-│   ├── plantilla_eda.ipynb              plantilla lista para usar
-│   ├── snippets.md                      chuleta de pandas/sklearn
-│   └── _ejecutada_pima_referencia.ipynb copia ya ejecutada, para ver salidas
-├── outputs/                gráficas y entregables (se llena solo)
-├── requirements.txt        dependencias directas
-└── requirements-lock.txt   freeze completo (119 paquetes)
+src/score_diabetes.py                  motor de puntuación (sin dependencias de ML)
+notebooks/analisis_cornelio.ipynb      análisis completo y hallazgos
+notebooks/analisis/analisis_jesus.ipynb análisis complementario
+dashboard/                             dashboard interactivo
+docs/transcripcion_instrucciones.md    transcripción del audio del reto
+outputs/                               gráficas y tabla de puntuación
+USO_DE_IA.md                           declaración de uso de IA (exigida por el reglamento)
 ```
 
----
+## Limitaciones
 
-## Versiones instaladas
+- Los datos son **autorreportados** (BRFSS 2015 es una encuesta telefónica), por
+  lo que los factores dependen de lo que el encuestado recuerda y declara.
+- Se **excluyó la clase prediabetes** (1.8% de los registros) del ajuste, por ser
+  un estado intermedio con pocos casos para calibrar pesos estables.
+- El score se **calibró y validó sobre el mismo conjunto**. Con más tiempo
+  correspondería una partición de validación independiente.
+- Los *odds ratio* son **crudos, no ajustados por confusores**: factores
+  correlacionados entre sí aportan puntos de forma parcialmente redundante.
 
-Python **3.9.6** (el del sistema; no había otro disponible en esta Mac).
-Las librerías quedaron en las últimas versiones compatibles con 3.9:
+## Uso de inteligencia artificial
 
-| Paquete | Versión |
-|---|---|
-| pandas | 2.3.3 |
-| numpy | 2.0.2 |
-| matplotlib | 3.9.4 |
-| seaborn | 0.13.2 |
-| scikit-learn | 1.6.1 |
-| jupyter | 1.1.1 |
-| openpyxl | 3.1.5 |
-
----
-
-## Cómo usar la plantilla
-
-`notebooks/plantilla_eda.ipynb` está pensada para tocar **una sola celda**:
-
-```python
-RUTA_CSV = Path("../data/pima_diabetes.csv")   # el archivo
-TARGET    = "Outcome"                          # lo que quieres predecir
-COLS_A_ELIMINAR = []                           # ["id"] en stroke
-```
-
-Luego `Kernel > Restart & Run All` y tienes EDA + dos modelos base + métricas
-+ seis gráficas guardadas en `outputs/`.
-
-Valores por dataset:
-
-| Dataset | `RUTA_CSV` | `TARGET` | `COLS_A_ELIMINAR` |
-|---|---|---|---|
-| Diabetes | `../data/pima_diabetes.csv` | `Outcome` | `[]` |
-| Corazón | `../data/heart_disease.csv` | `num` | `[]` |
-| Derrame | `../data/stroke_prediction.csv` | `stroke` | `["id"]` |
-
-El notebook binariza solo el target si viene en escala (el caso de `num`, 0–4).
-
----
-
-## Datasets — fuentes usadas
-
-Ninguno requiere login. **No se usó Kaggle** (habría pedido credenciales que no
-están configuradas), así que fueron mirrors públicos y UCI directo:
-
-| Archivo | Filas × cols | Target | Fuente |
-|---|---|---|---|
-| `pima_diabetes.csv` | 768 × 9 | `Outcome` (34.9% positivos) | `raw.githubusercontent.com/plotly/datasets/master/diabetes.csv` |
-| `heart_disease.csv` | 303 × 14 | `num` 0–4 (45.9% con enfermedad) | UCI ML Repository, dataset 45 (Cleveland): `archive.ics.uci.edu/static/public/45/data.csv` |
-| `stroke_prediction.csv` | 5110 × 12 | `stroke` (4.87% positivos) | mirror del dataset de Kaggle en `raw.githubusercontent.com/bishopce16/stroke_prediction_analysis/main/resources/healthcare-dataset-stroke-data.csv` |
-
-Notas de calidad, ya verificadas:
-
-- **Pima**: sin NaN declarados, pero con **ceros imposibles** (`Glucose`,
-  `BloodPressure`, `SkinThickness`, `Insulin`, `BMI` = 0). Son nulos disfrazados.
-  La celda 6a tiene el bloque para convertirlos a `NaN`.
-- **Heart**: 6 nulos en `ca` y `thal`. Target `num` en escala 0–4 → binarizar.
-- **Stroke**: 201 nulos en `bmi` (3.9%). Fuertemente **desbalanceado (4.87%)**:
-  el accuracy no sirve como métrica, usa recall de la clase 1 y ROC-AUC.
-
----
-
-## Verificaciones hechas
-
-- Los 7 paquetes importan sin error en el venv.
-- Los 3 CSV cargan con `pd.read_csv` (shapes confirmados arriba).
-- `plantilla_eda.ipynb` corre **de principio a fin sin errores** con Pima
-  (LogReg: acc 0.734 / AUC 0.825 — RF: acc 0.766 / AUC 0.824).
-- También corre completa con Heart Disease
-  (LogReg: acc 0.869 / AUC 0.950 — RF: acc 0.918 / AUC 0.959).
-- Pipeline de Stroke verificado por separado (acc 0.746 con `class_weight="balanced"`).
-
-> Puede que veas `RuntimeWarning: ... encountered in matmul` en algunos ajustes.
-> Es un artefacto conocido de numpy con el BLAS Accelerate de macOS: se comprobó
-> que `lbfgs`, `liblinear` y `newton-cg` dan resultados idénticos, así que no
-> afecta los números. El notebook ya los silencia.
-
----
-
-## Recordatorio para el día del evento
-
-**El objetivo es terminar, no optimizar.** Un análisis completo y mediocre gana a
-uno brillante a medio hacer. Reparto sugerido de las 3 horas:
-
-| Tiempo | Qué |
-|---|---|
-| 0:00–0:20 | Cargar, entender el problema, ver `shape` / nulos / balance del target |
-| 0:20–1:00 | EDA con gráficas — anota hallazgos **mientras** los ves, no después |
-| 1:00–1:40 | Limpieza + modelo base. Uno solo. No afines hiperparámetros. |
-| 1:40–2:20 | Interpretación: qué variables pesan y qué significan clínicamente |
-| 2:20–3:00 | **Slides y ensayo en voz alta.** Reserva esto de verdad. |
-
-Estructura de cada hallazgo: **problema → qué encontré → qué recomendaría.**
-Cada afirmación con un número detrás.
+Declarado en **[`USO_DE_IA.md`](USO_DE_IA.md)**, conforme al reglamento del
+datatón: herramientas empleadas, qué produjo cada una, qué decidió el equipo y
+los prompts principales.
