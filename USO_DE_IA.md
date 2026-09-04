@@ -53,9 +53,10 @@
 **De Jesús a Codex:**
 1. *"necesito que me prepares el entorno para un datathon de análisis de datos de
    salud que empieza hoy a la 1 pm"*
-2. *"necesito que cuando hagas push y commit no salga hecho por openai, codex"*
-3. *"necesito que hagas commit a los cambios que estoy haciendo en vs code y
+2. *"necesito que hagas commit a los cambios que estoy haciendo en vs code y
    revisa los issues que me ha enviado cornelio"*
+3. *"alinea el dashboard con las cifras del score y agrega una calculadora
+   individual"*
 
 ## 5. Verificación
 
