@@ -110,6 +110,10 @@ select, input[type="number"], input[type="text"] {
 }
 select:hover, input[type="number"]:hover { border-color: var(--accent); background: rgba(255,255,255,0.08); }
 select:focus, input[type="number"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+/* Los menús nativos deben conservar contraste al abrirse en el tema oscuro. */
+select { color-scheme: dark; cursor: pointer; }
+select option, select optgroup { color: #f4f7f8; background-color: #101518; }
+select option:checked { color: #ffffff; background-color: #087f9b; }
 .reset-button, .calc-button { 
   min-height: 42px; padding: 0 1.5rem; 
   color: var(--bg-color); font-size: 0.85rem; font-weight: 600; 
