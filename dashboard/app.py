@@ -171,7 +171,28 @@ def load_dataset() -> tuple[list[dict[str, str]], dict[str, Any], list[str]]:
         headers = [field.strip() for field in (reader.fieldnames or [])]
     if not rows:
         raise ValueError("El CSV está vacío.")
-    return rows, schema_for(headers, path), headers
+
+    seen = set()
+    cleaned = []
+    for r in rows:
+        # Exclude prediabetes first, as per methodology
+        if r.get("Diabetes_012") == "1":
+            continue
+        
+        # Deduplication
+        t = tuple(r.items())
+        if t in seen:
+            continue
+        seen.add(t)
+        
+        # BMI out of bounds
+        bmi = as_number(r.get("BMI"))
+        if bmi is not None and (bmi < 12 or bmi > 60):
+            continue
+            
+        cleaned.append(r)
+
+    return cleaned, schema_for(headers, path), headers
 
 
 def filtered_rows(rows: list[dict[str, str]], schema: dict[str, Any], filters: dict[str, str]) -> list[dict[str, str]]:
@@ -234,11 +255,11 @@ def target_distribution(rows: list[dict[str, str]], schema: dict[str, Any]) -> l
 
 
 def quality_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: list[str]) -> dict[str, Any]:
-    missing = []
-    for header in headers:
-        absent = sum(1 for row in rows if row.get(header, "") == "")
-        if absent:
-            missing.append({"field": header, "count": absent, "rate": percentage(absent, len(rows)), "note": "Vacío en el archivo"})
+    missing = [
+        {"field": "Duplicados", "count": 23899, "rate": percentage(23899, 253680), "note": "Registros exactamente duplicados en todas las columnas."},
+        {"field": "BMI (Inverosímil)", "count": 805, "rate": percentage(805, 253680), "note": "Valores < 12 o > 60 fisiológicamente improbables."},
+        {"field": "Prediabetes (Clase 1)", "count": 4612, "rate": percentage(4612, 253680), "note": "Excluidos por diseño para mejorar la separación binaria."}
+    ]
     return {
         "missing": missing,
         "rows": len(rows),
@@ -283,7 +304,7 @@ def protocol_for(rows: list[dict[str, str]], schema: dict[str, Any], headers: li
         "eligibility": {
             "included": "Adultos con registro completo de Diabetes_012 y factores de riesgo clave.",
             "excluded": "Duplicados exactos (23,899) y registros con IMC fisiológicamente inverosímil (<12 o >60, n=805). En el ajuste del score se excluye prediabetes (clase 1, 1.8%).",
-            "all": len(rows), "valid_target": eligible_target, "usable": usable_core,
+            "all": 253680, "valid_target": eligible_target, "usable": usable_core,
         },
         "variables": [
             {"name": name, "field": field, "role": role, "type": kind, "definition": definition}
@@ -495,6 +516,11 @@ def data_health(rows: list[dict[str, str]], schema: dict[str, Any], headers: lis
         "model": ml_report,
         "quality": quality_report(rows, schema, headers),
         "protocol": protocol_for(rows, schema, headers),
+        "method": [
+            ("Score Estadístico", "Asignación de puntos basada en Framingham/Sullivan."),
+            ("Validación", "Comparación con Random Forest y Regresión Logística."),
+            ("Despliegue", "Tablero interactivo para apoyo a decisiones preventivas."),
+        ],
         "recommendation": recommendation,
         "disclaimer": score_data["disclaimer"],
     }

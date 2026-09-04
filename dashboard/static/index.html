@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0b3b45" />
     <meta name="description" content="Tablero de toma de decisiones para analizar indicadores asociados a diabetes." />
     <title>MedData | Decisiones sobre diabetes</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=3" />
   </head>
   <body>
     <a class="skip-link" href="#principal">Ir al contenido principal</a>
@@ -53,6 +53,38 @@
       <section class="decision-card" aria-labelledby="decision-title">
         <div class="decision-heading"><p class="eyebrow">RUTA DE DECISIÓN</p><h2 id="decision-title">De la evidencia a la acción</h2></div>
         <div class="decision-grid" id="decision-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="calculator-card panel" aria-labelledby="calc-title">
+        <h2 id="calc-title">Calculadora de Paciente Individual</h2>
+        <p class="section-note">Ingresa los datos del paciente para obtener el score de riesgo de diabetes (Framingham/Sullivan).</p>
+        <form id="calc-form">
+          <div class="calc-grid">
+            <label class="filter-control"><span>Edad (años)</span><input type="number" id="calc-age" min="18" max="120" value="45" required></label>
+            <label class="filter-control"><span>IMC</span><input type="number" id="calc-bmi" min="10" max="80" step="0.1" value="28" required></label>
+            <label class="filter-control"><span>Presión Alta</span>
+              <select id="calc-bp"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
+            <label class="filter-control"><span>Colesterol Alto</span>
+              <select id="calc-chol"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
+            <label class="filter-control"><span>Salud General (1-5)</span>
+              <select id="calc-genhlth"><option value="1">1 (Excelente)</option><option value="2">2 (Muy buena)</option><option value="3" selected>3 (Buena)</option><option value="4">4 (Regular)</option><option value="5">5 (Mala)</option></select>
+            </label>
+            <label class="filter-control"><span>Dif. para caminar</span>
+              <select id="calc-diffwalk"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
+            <label class="filter-control"><span>Enf. Cardíaca</span>
+              <select id="calc-heart"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
+          </div>
+          <button type="submit" class="calc-button">Calcular Riesgo</button>
+        </form>
+        <div id="calc-result" class="calc-result" style="display: none;">
+          <h3>Resultado del Score</h3>
+          <div class="score-val" id="calc-score-val">--</div>
+          <p id="calc-score-desc">--</p>
+        </div>
       </section>
 
       <section class="content-grid" aria-label="Análisis detallado">
@@ -163,6 +195,6 @@
 
     <footer>MedData Challenge · Análisis exploratorio y apoyo a decisiones · <span id="footer-source">—</span></footer>
     <template id="loading-template"><div class="loading">Actualizando indicadores…</div></template>
-    <script src="app.js" defer></script>
+    <script src="app.js?v=3" defer></script>
   </body>
 </html>

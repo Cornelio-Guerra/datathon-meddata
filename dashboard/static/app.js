@@ -36,11 +36,19 @@ function createBarChart(node, items, options = {}) {
     row.append(create("span", "bar-label", item.label));
     const track = create("span", "bar-track");
     const fill = create("span", `bar-fill ${index === 0 && options.highlight ? "amber" : ""}`);
-    fill.style.width = `${Math.max((item.rate / max) * 100, 2)}%`;
+    fill.style.width = "0%";
+    const targetWidth = `${Math.max((item.rate / max) * 100, 2)}%`;
     fill.title = `${item.label}: ${formatRate(item.rate)} (${formatNumber.format(item.n ?? item.count ?? 0)} registros)`;
     track.append(fill);
     row.append(track, create("span", "bar-value", formatRate(item.rate)));
     node.append(row);
+    
+    // Trigger animation after append
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        fill.style.width = targetWidth;
+      });
+    });
   }
 }
 
@@ -150,12 +158,20 @@ function renderFactors(factors) {
     name.append(create("span", "factor-group", `Mayor tasa: ${factor.group} · n=${formatNumber.format(factor.n)}`));
     const track = create("span", "bar-track");
     const fill = create("span", "bar-fill amber");
-    fill.style.width = `${Math.min(factor.rate, 100)}%`;
+    fill.style.width = "0%";
+    const targetWidth = `${Math.min(factor.rate, 100)}%`;
     track.append(fill);
     const rate = create("div", "factor-rate", formatRate(factor.rate));
     rate.append(create("em", "", `${factor.delta >= 0 ? "+" : ""}${factor.delta.toFixed(1)} pp vs. promedio`));
     row.append(name, track, rate);
     list.append(row);
+
+    // Trigger animation after append
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        fill.style.width = targetWidth;
+      });
+    });
   }
 }
 
@@ -247,10 +263,17 @@ function renderModel(model) {
     row.append(create("span", "bar-label", item.label));
     const track = create("span", "bar-track");
     const fill = create("span", "bar-fill");
-    fill.style.width = `${Math.max((item.value / maxFeature) * 100, 2)}%`;
+    fill.style.width = "0%";
+    const targetWidth = `${Math.max((item.value / maxFeature) * 100, 2)}%`;
     track.append(fill);
     row.append(track, create("span", "bar-value", item.value.toFixed(3)));
     features.append(row);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        fill.style.width = targetWidth;
+      });
+    });
   }
   createBarChart(risks, model.risk_bands.map((item) => ({
     label: `${item.label} · estimado ${formatRate(item.predicted)}`,
@@ -316,5 +339,46 @@ byId("reset-filters").addEventListener("click", () => {
   for (const select of document.querySelectorAll("#filter-fields select")) select.value = "Todos";
   refresh();
 });
+
+const calcForm = byId("calc-form");
+if (calcForm) {
+  calcForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = calcForm.querySelector(".calc-button");
+    const originalText = btn.textContent;
+    btn.textContent = "Calculando...";
+    btn.disabled = true;
+
+    try {
+      const payload = {
+        Age: parseFloat(byId("calc-age").value),
+        BMI: parseFloat(byId("calc-bmi").value),
+        HighBP: parseInt(byId("calc-bp").value, 10),
+        HighChol: parseInt(byId("calc-chol").value, 10),
+        GenHlth: parseInt(byId("calc-genhlth").value, 10),
+        DiffWalk: parseInt(byId("calc-diffwalk").value, 10),
+        HeartDiseaseorAttack: parseInt(byId("calc-heart").value, 10)
+      };
+
+      const response = await fetch("/api/score/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Error al calcular el score.");
+      
+      byId("calc-score-val").textContent = `${result.score} pts`;
+      byId("calc-score-desc").textContent = `Nivel de riesgo: ${result.risk_level} (${formatRate(result.probability * 100)} probabilidad estimada)`;
+      byId("calc-result").style.display = "block";
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  });
+}
 
 refresh();
