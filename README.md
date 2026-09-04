@@ -40,7 +40,8 @@ interpretable por un médico.
 | Especificidad | 58.5% |
 | **Valor predictivo negativo** | **95.6%** |
 | Inconsistencias detectadas | **24,704** |
-| Registros analizados | 253,680 → 228,976 tras depuración |
+| Registros depurados | 253,680 → **228,976** (se eliminan duplicados e IMC imposible) |
+| Registros analizados en el score | **224,364** (se excluyen además 4,612 prediabéticos) |
 
 **Estratificación de riesgo** — el score separa 11 veces entre extremos:
 
