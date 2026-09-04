@@ -75,12 +75,3 @@ machine learning, y es reproducible corriendo `python src/score_diabetes.py`.
   declara, no de una medición clínica.
 - **El score se validó sobre el mismo conjunto** con el que se calibraron los
   pesos. Con más tiempo correspondería una partición de validación independiente.
-
-## 7. Nota sobre una corrección durante el reto
-
-La transcripción automática del audio indica *"utilizando únicamente reglas
-matemáticas y métodos estadísticos"*, lo que se interpretó inicialmente como una
-prohibición de usar machine learning. El equipo **confirmó con los organizadores
-en persona que el ML sí está permitido**. El sistema de puntuación se mantuvo
-igualmente por ser interpretable y aplicable sin computadora, que es su valor
-diferencial.
