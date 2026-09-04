@@ -75,6 +75,64 @@ priorizó sensibilidad.
    al 48% de mayor puntaje se captura el 85.5% de los diabéticos, y cuando el
    sistema dice "bajo riesgo" acierta el 95.6% de las veces.
 
+
+## Justificabilidad — por qué cada decisión se puede defender
+
+El enunciado pide una solución *precisa, eficiente y **justificable***. Esta es
+la trazabilidad completa de cada pieza del sistema.
+
+### ¿Por qué entra cada variable?
+
+Ninguna variable entró por correlación ciega. Cada una es un factor de riesgo de
+diabetes tipo 2 reconocido clínicamente, y su relación en estos datos se midió:
+
+| Variable | Relación clínica conocida | OR medido aquí |
+|---|---|---|
+| Salud autopercibida | Marcador integrado de comorbilidad | **18.8** |
+| Edad | El riesgo crece con la edad; deterioro de la función pancreática | 8.7 |
+| IMC | La obesidad es el factor modificable principal | 6.0 |
+| Presión alta | Componente del síndrome metabólico | 4.6 |
+| Dificultad para caminar | Proxy de complicaciones y sedentarismo | 3.4 |
+| Enfermedad cardíaca | Comorbilidad frecuente del síndrome metabólico | 3.3 |
+| Colesterol alto | Componente del síndrome metabólico | 3.1 |
+| Derrame previo | Consecuencia vascular compartida | 2.8 |
+| Actividad física | **Protector** — mejora la sensibilidad a la insulina | 0.55 |
+| Consumo alto de alcohol | **Protector aparente** — ver limitaciones | 0.33 |
+
+Se **descartó** `CholCheck` pese a estar entre los OR más altos del dataset: mide
+si la persona se hizo un chequeo de colesterol, no su estado de salud. Es un marcador de contacto con el
+sistema sanitario, no un factor de riesgo. Incluirlo habría inflado la precisión
+con una variable que no explica nada clínicamente.
+
+### ¿De dónde sale cada punto?
+
+De la fórmula `puntos = round(ln(OR) / B)`, con `B = 0.7532` (el menor `ln(OR)`
+positivo observado). No hay pesos elegidos a mano ni ajustados por ensayo y error.
+
+**Un punto = un OR de 2.12.** Cada punto adicional duplica aproximadamente las
+probabilidades. Esa es toda la interpretación que un médico necesita.
+
+### ¿Por qué el corte en 7?
+
+Se calcularon las métricas en **12 umbrales distintos** (visibles en el notebook).
+El 7 no maximiza el accuracy: se eligió por el **costo asimétrico del error**.
+
+En tamizaje, un falso negativo es un paciente que se va a casa sin diagnóstico;
+un falso positivo solo genera una prueba confirmatoria barata. Por eso se
+priorizó sensibilidad (85.5%) sobre especificidad (58.5%).
+
+### ¿Qué significa cada métrica?
+
+| Métrica | Qué responde | Valor |
+|---|---|---|
+| Sensibilidad | De todos los diabéticos, ¿a cuántos detecto? | 85.5% |
+| Especificidad | De todos los sanos, ¿a cuántos descarto bien? | 58.5% |
+| VPN | Cuando digo "bajo riesgo", ¿cuánto acierto? | **95.6%** |
+| AUC | ¿Ordena bien a un enfermo por encima de un sano? | 0.798 |
+
+El **AUC de 0.798** significa que, tomando un diabético y un no diabético al azar,
+el sistema le asigna mayor puntaje al diabético el 79.8% de las veces.
+
 ## Cómo ejecutarlo
 
 ```bash
@@ -101,7 +159,8 @@ src/score_diabetes.py                  motor de puntuación (sin dependencias de
 notebooks/analisis_cornelio.ipynb      análisis completo y hallazgos
 notebooks/analisis/analisis_jesus.ipynb análisis complementario
 dashboard/                             dashboard interactivo
-docs/transcripcion_instrucciones.md    transcripción del audio del reto
+docs/instrucciones_datathon.md         instrucciones del reto
+docs/transcripcion_datathon.md         transcripción consolidada del audio
 outputs/                               gráficas y tabla de puntuación
 USO_DE_IA.md                           declaración de uso de IA (exigida por el reglamento)
 ```

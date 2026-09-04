@@ -46,9 +46,24 @@ Reglas concretas:
 >
 > El equipo que presente la solución **más precisa, eficiente y justificable** será el ganador.
 
-## Restricción crítica
+## Restricción — RESUELTA con los organizadores
 
-**"Únicamente reglas matemáticas y métodos estadísticos"** — esto excluye modelos de machine learning entrenados (clasificadores aprendidos, árboles, random forest, boosting, redes neuronales). Lo que se pide es un **score interpretable**, construido a mano a partir del análisis estadístico de los factores clínicos.
+El audio dice **"únicamente reglas matemáticas y métodos estadísticos"**. Esa
+frase se interpretó inicialmente como una prohibición de usar machine learning.
+
+**Consultado con los organizadores: el ML sí se permite.** Lo que exigen es que
+los datos y los resultados se puedan **explicar**.
+
+El criterio operativo no es qué técnica está prohibida, sino si se puede
+justificar cada pieza:
+
+- cada variable que entra al modelo, por qué entra y qué relación tiene con diabetes;
+- de dónde sale cada peso o cada punto del score;
+- por qué ese punto de corte y no otro;
+- qué significan las métricas que se reportan.
+
+Una técnica que da precisión pero no se puede explicar **pierde** contra una más
+simple que sí se pueda defender.
 
 ## Criterios de evaluación
 
