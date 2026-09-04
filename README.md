@@ -150,6 +150,21 @@ pip install -r requirements.txt
 python src/score_diabetes.py       # reproduce todas las cifras de arriba
 ```
 
+### Windows / PowerShell
+
+Con el entorno virtual ya creado, estos comandos equivalentes evitan depender de
+la activación del entorno:
+
+```powershell
+# Dashboard y calculadora interactiva: http://127.0.0.1:8000
+.\run_dashboard.ps1
+
+# Motor estadístico, pruebas y notebooks
+.\.venv\Scripts\python.exe .\src\score_diabetes.py
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
+.\.venv\Scripts\jupyter.exe lab
+```
+
 **Dashboard interactivo** (servidor con librería estándar; su sección de comparación usa scikit-learn):
 
 ```bash
