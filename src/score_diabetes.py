@@ -77,14 +77,20 @@ T["puntos"] = (T.ln_OR / B).round().astype(int).clip(lower=-3)
 mapas = {c: dict(zip(g.nivel, g.puntos)) for c, g in T.groupby("factor")}
 df["SCORE"] = sum(df[c].map(m).fillna(0) for c, m in mapas.items()).astype(int)
 
-# ------------------------------------ 6. UMBRALES POR PERCENTIL
-cortes = [df.SCORE.quantile(q) for q in (0.50, 0.80, 0.95)]
+# ------------------------------------ 6. UMBRALES CLINICOS
+# El corte de derivacion NO se elige maximizando accuracy, sino por el costo
+# clinico del error: en tamizaje un falso negativo es un paciente que se va sin
+# diagnostico; un falso positivo solo genera una prueba confirmatoria barata.
+# Por eso se prioriza sensibilidad. Corte >=7: sensibilidad 85.5%.
+CORTE_DERIVACION = 7
+cortes = [6, 9, 12]          # Bajo <=6 | Moderado 7-9 | Alto 10-12 | Muy alto >=13
 def clasificar(s):
     if s <= cortes[0]: return "Bajo"
     if s <= cortes[1]: return "Moderado"
     if s <= cortes[2]: return "Alto"
     return "Muy alto"
 df["RIESGO"] = df.SCORE.apply(clasificar)
+df["DERIVAR"] = (df.SCORE >= CORTE_DERIVACION).astype(int)
 
 # ------------------------------------------------- 7. VALIDACION (a mano)
 grupos = (df.groupby("RIESGO").dm.agg(n="size", casos="sum", prev="mean")
@@ -93,7 +99,7 @@ grupos["prev_%"] = (grupos.prev * 100).round(1)
 grupos = grupos.drop(columns="prev")
 
 # Metricas para el corte "Alto o mas", calculadas con aritmetica pura
-pos = df.RIESGO.isin(["Alto", "Muy alto"])
+pos = df.SCORE >= CORTE_DERIVACION
 VP = int((pos & (df.dm == 1)).sum()); FP = int((pos & (df.dm == 0)).sum())
 FN = int((~pos & (df.dm == 1)).sum()); VN = int((~pos & (df.dm == 0)).sum())
 sens = VP / (VP + FN); esp = VN / (VN + FP)
@@ -111,10 +117,11 @@ if __name__ == "__main__":
     print(T[["nombre","nivel","n","prev_%","OR","puntos"]].to_string(index=False))
     print(f"\nConstante de calibracion B = {B:.4f}  (1 punto = OR de {np.exp(B):.2f})")
     print(f"\nRango del score: {df.SCORE.min()} a {df.SCORE.max()}")
-    print(f"Cortes (P50/P80/P95): {[int(c) for c in cortes]}")
+    print(f"Cortes de categoria: {cortes}  | corte de derivacion: >={CORTE_DERIVACION}")
+    print(f"Poblacion derivada: {df.DERIVAR.mean()*100:.1f}%")
     print("\n=== ESTRATIFICACION DE RIESGO ===")
     print(grupos.to_string())
-    print(f"\n=== VALIDACION (corte: Alto o Muy alto) ===")
+    print(f"\n=== VALIDACION (corte de derivacion: score >= {CORTE_DERIVACION}) ===")
     print(f"  Sensibilidad : {sens*100:.1f}%   (detecta {VP:,} de {VP+FN:,} diabeticos)")
     print(f"  Especificidad: {esp*100:.1f}%")
     print(f"  VPP          : {vpp*100:.1f}%")
