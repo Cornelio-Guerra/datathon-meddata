@@ -40,8 +40,7 @@ interpretable por un médico.
 | Especificidad | 58.5% |
 | **Valor predictivo negativo** | **95.6%** |
 | Inconsistencias detectadas | **24,704** |
-| Registros depurados | 253,680 → **228,976** (se eliminan duplicados e IMC imposible) |
-| Registros analizados en el score | **224,364** (se excluyen además 4,612 prediabéticos) |
+| Registros | **253,680** crudos → **228,976** depurados → **224,364** calibrados |
 
 **Estratificación de riesgo** — el score separa 11 veces entre extremos:
 
@@ -61,14 +60,21 @@ priorizó sensibilidad.
 
 ## Hallazgos
 
-1. **El 10% del dataset es ruido duplicado.** 23,899 duplicados exactos, 805 IMC
-   fisiológicamente imposibles y 7,838 contradicciones lógicas. Sin un control de
-   calidad previo, una de cada diez decisiones se toma sobre un registro repetido.
+1. **La limpieza de datos es una decisión, no un trámite — y la medimos en las dos
+   direcciones.** Encontramos 23,899 filas exactamente repetidas (9.4%), 805 con
+   IMC sobre 60 y 7,838 personas sin seguro que no reportan barrera de costo
+   (esto último **no es contradicción**: es el 63% de los no asegurados, gente
+   que no necesitó médico ese año; las conservamos). Verificamos si los
+   duplicados eran errores de captura o colisiones de azar: las filas repetidas
+   tienen **1.0% de diabetes contra 15.3% del resto y cero derrames** — el perfil
+   joven-sano modal, la firma de una colisión estadística en una encuesta de 21
+   variables casi todas binarias. Corrimos el pipeline en ambos escenarios: **sin
+   deduplicar el AUC es 0.816; deduplicando, 0.798.** Reportamos la versión
+   conservadora, la que nos deja peor.
 
 2. **La salud autopercibida predice mejor que varios marcadores clínicos.** Quien
    califica su salud como "mala" tiene 38.9% de diabetes contra 3.3% de quien la
-   califica "excelente" — un *odds ratio* de 18.8, el más alto de las 22
-   variables, por encima de presión alta (4.6) y colesterol (3.1). Es una
+   califica "excelente" — un *odds ratio* de 18.8, el más alto de los 10 factores del score, por encima de presión alta (4.6) y colesterol (3.1). Es una
    pregunta que cuesta cero y ordena mejor que un análisis de sangre.
 
 3. **Diez preguntas estratifican el riesgo 11 veces, sin laboratorio.** Derivando
@@ -109,8 +115,9 @@ con una variable que no explica nada clínicamente.
 De la fórmula `puntos = round(ln(OR) / B)`, con `B = 0.7532` (el menor `ln(OR)`
 positivo observado). No hay pesos elegidos a mano ni ajustados por ensayo y error.
 
-**Un punto = un OR de 2.12.** Cada punto adicional duplica aproximadamente las
-probabilidades. Esa es toda la interpretación que un médico necesita.
+`B` es la unidad de conversión de ln(OR) a puntos. Medido sobre nuestra propia
+salida, **cada punto multiplica los odds por ≈1.45**. Esa es toda la
+interpretación que un médico necesita.
 
 ### ¿Por qué el corte en 7?
 
@@ -143,7 +150,7 @@ pip install -r requirements.txt
 python src/score_diabetes.py       # reproduce todas las cifras de arriba
 ```
 
-**Dashboard interactivo** (no requiere dependencias externas):
+**Dashboard interactivo** (servidor con librería estándar; su sección de comparación usa scikit-learn):
 
 ```bash
 cd dashboard && python app.py      # http://localhost:8000
@@ -164,6 +171,14 @@ docs/transcripcion_datathon.md         transcripción consolidada del audio
 outputs/                               gráficas y tabla de puntuación
 USO_DE_IA.md                           declaración de uso de IA (exigida por el reglamento)
 ```
+
+### Sobre el uso de machine learning
+
+Los organizadores confirmaron que el ML está permitido. Lo usamos **solo como
+contraste**: un Random Forest sobre el dataset crudo alcanza **AUC 0.823** frente
+a 0.798 del score. Esos 25 milésimos cuestan un modelo que nadie aplica en papel
+ni audita — y ese 0.823 está medido sobre datos sin deduplicar, donde parte del
+conjunto de prueba son copias exactas del de entrenamiento. No son comparables.
 
 ## Limitaciones
 

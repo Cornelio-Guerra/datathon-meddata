@@ -1,6 +1,7 @@
 """
 Sistema de puntuacion de riesgo de diabetes — SIN machine learning.
-Metodo: Sullivan et al. (framework de Framingham): los odds ratio ajustados se
+Metodo: Sullivan et al. (framework de Framingham): los odds ratio crudos
+(bivariados) se
 convierten en puntos enteros dividiendo por una constante de referencia.
 Solo estadistica descriptiva, tablas de contingencia y aritmetica.
 """
@@ -114,6 +115,34 @@ r = df.SCORE.rank()
 n1, n0_ = int(df.dm.sum()), int((df.dm == 0).sum())
 auc = (r[df.dm == 1].sum() - n1 * (n1 + 1) / 2) / (n1 * n0_)
 
+# ------------------------------- 8. CLASIFICAR UN PACIENTE NUEVO
+# El enunciado pide "clasifique nuevos pacientes". Usa los mismos mapas de puntos
+# y los mismos cortes de la calibracion: resultado identico al del pipeline.
+PREV_POR_NIVEL = grupos["prev_%"].to_dict()
+
+def _nivel_bmi(b):  return 0 if b <= 25 else 1 if b <= 30 else 2 if b <= 35 else 3
+def _nivel_edad(a): return 0 if a <= 4 else 1 if a <= 7 else 2 if a <= 9 else 3 if a <= 11 else 4
+
+def puntuar_paciente(p):
+    """Recibe un dict con las 10 variables crudas y devuelve score, nivel de
+    riesgo y la prevalencia observada de ese nivel."""
+    niveles = {"f_bmi": _nivel_bmi(p["BMI"]), "f_edad": _nivel_edad(p["Age"]),
+               "f_salud": int(p["GenHlth"]) - 1,
+               **{c: int(p[c]) for c in ("HighBP", "HighChol", "DiffWalk",
+                    "HeartDiseaseorAttack", "Stroke", "PhysActivity",
+                    "HvyAlcoholConsump")}}
+    detalle, score = {}, 0
+    for c, lv in niveles.items():
+        pts = mapas[c].get(lv, mapas[c].get(float(lv)))
+        if pts is None:
+            raise ValueError(f"Nivel {lv} no valido para el factor {c}")
+        detalle[FACTORES[c]] = int(pts); score += int(pts)
+    riesgo = clasificar(score)
+    return {"score": score, "riesgo": riesgo,
+            "prevalencia_observada_%": PREV_POR_NIVEL[riesgo],
+            "derivar": score >= CORTE_DERIVACION, "detalle": detalle}
+
+
 if __name__ == "__main__":
     print("=== INCONSISTENCIAS DETECTADAS ===")
     for k, v in inconsistencias.items(): print(f"  {k:26s}: {v:,}")
@@ -132,3 +161,13 @@ if __name__ == "__main__":
     print(f"  VPN          : {vpn*100:.1f}%")
     print(f"  AUC (Mann-Whitney, sin sklearn): {auc:.4f}")
     T.to_csv(RAIZ / "outputs" / "tabla_puntuacion.csv", index=False)
+
+    ejemplo = {"BMI": 33, "Age": 9, "GenHlth": 3, "HighBP": 1, "HighChol": 1,
+               "DiffWalk": 0, "HeartDiseaseorAttack": 0, "Stroke": 0,
+               "PhysActivity": 0, "HvyAlcoholConsump": 0}
+    r = puntuar_paciente(ejemplo)
+    print("\n=== CLASIFICAR UN PACIENTE NUEVO ===")
+    print("  Perfil: 60-64 anios, IMC 33, salud regular, hipertension, colesterol alto")
+    print(f"  Score {r['score']} -> {r['riesgo']} | prevalencia observada {r['prevalencia_observada_%']}%"
+          f" | derivar: {'SI' if r['derivar'] else 'NO'}")
+    print(f"  Desglose: {r['detalle']}")

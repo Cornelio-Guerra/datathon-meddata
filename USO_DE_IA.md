@@ -25,8 +25,8 @@
 
 **Codex:**
 - Preparó el entorno de Jesús en Windows y la configuración de VS Code.
-- Construyó el dashboard (`dashboard/`), servidor con librería estándar de
-  Python, sin dependencias externas.
+- Construyó el dashboard (`dashboard/`): servidor HTTP con librería estándar de
+  Python; su sección de comparación usa scikit-learn.
 - Apoyó la estructura del notebook y las gráficas de la presentación.
 
 ## 3. Qué decidió el equipo
