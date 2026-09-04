@@ -1,9 +1,7 @@
 """Servidor local para el tablero de decisión sobre diabetes.
 
-No requiere dependencias nuevas: sirve la interfaz y expone una API JSON que
-calcula los indicadores a partir del CSV disponible en ``data/``. Prioriza el
-archivo BRFSS 2015 cuando esté presente y usa Pima solo como respaldo para que
-el tablero siga siendo demostrable durante la sincronización del dataset.
+Sirve la interfaz web y expone una API JSON para análisis poblacional,
+integración del score estadístico de Sullivan y calculadora individual de riesgo.
 """
 
 from __future__ import annotations
@@ -13,7 +11,8 @@ import json
 import math
 import mimetypes
 import os
-from collections import Counter, defaultdict
+import sys
+from collections import defaultdict
 from functools import lru_cache
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -21,8 +20,17 @@ from pathlib import Path
 from typing import Any, Callable, Iterable
 from urllib.parse import parse_qs, urlparse
 
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+try:
+    from dashboard.score_adapter import calculate_patient_score, get_score_summary
+except ImportError:
+    from score_adapter import calculate_patient_score, get_score_summary
+
 DATA_DIR = ROOT / "data"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 PORT = int(os.environ.get("MEDDATA_PORT", "8000"))
@@ -46,39 +54,6 @@ def pretty_number(value: int | float) -> str:
     return f"{int(value):,}".replace(",", ".")
 
 
-def pima_age(value: Any) -> str:
-    number = as_number(value)
-    if number is None:
-        return "Sin dato"
-    if number < 35:
-        return "Menos de 35"
-    if number < 50:
-        return "35–49"
-    return "50 o más"
-
-
-def pima_bmi(value: Any) -> str:
-    number = as_number(value)
-    if number is None or number == 0:
-        return "Sin dato"
-    if number < 25:
-        return "< 25"
-    if number < 30:
-        return "25–29,9"
-    return "≥ 30"
-
-
-def pima_glucose(value: Any) -> str:
-    number = as_number(value)
-    if number is None or number == 0:
-        return "Sin dato"
-    if number < 100:
-        return "< 100"
-    if number < 126:
-        return "100–125"
-    return "≥ 126"
-
-
 BRFSS_AGE_LABELS = {
     "1": "18–24", "2": "25–29", "3": "30–34", "4": "35–39",
     "5": "40–44", "6": "45–49", "7": "50–54", "8": "55–59",
@@ -95,7 +70,16 @@ def brfss_age(value: Any) -> str:
 
 
 def brfss_bmi(value: Any) -> str:
-    return pima_bmi(value)
+    number = as_number(value)
+    if number is None or number == 0:
+        return "Sin dato"
+    if number <= 25:
+        return "< 25 (Normal)"
+    if number <= 30:
+        return "25–30 (Sobrepeso)"
+    if number <= 35:
+        return "30–35 (Obesidad I)"
+    return "> 35 (Obesidad II/III)"
 
 
 def binary_label(value: Any, yes: str, no: str) -> str:
@@ -112,127 +96,70 @@ def general_health(value: Any) -> str:
 
 
 def find_dataset() -> Path:
-    """Encuentra el CSV de diabetes más apropiado, sin asumir una ruta fija."""
+    """Encuentra el CSV de BRFSS para diabetes en data/."""
     candidates = list(DATA_DIR.glob("*.csv"))
     if not candidates:
         raise FileNotFoundError("No se encontró ningún CSV dentro de data/.")
 
-    def score(path: Path) -> tuple[int, str]:
-        try:
-            with path.open("r", encoding="utf-8-sig", newline="") as stream:
-                header = next(csv.reader(stream), [])
-        except (OSError, UnicodeDecodeError):
-            return (-1, path.name)
-        fields = set(header)
-        name = path.name.lower()
-        result = 0
-        if "Diabetes_012" in fields:
-            result += 100
-        if "brfss" in name:
-            result += 20
-        if "diabetes" in name:
-            result += 8
-        if "Outcome" in fields and {"Glucose", "BMI", "Age"}.issubset(fields):
-            result += 40
-        return (result, path.name)
-
-    return max(candidates, key=score)
+    for p in candidates:
+        if "brfss" in p.name.lower() or "diabetes_012" in p.name.lower():
+            return p
+    return candidates[0]
 
 
 def schema_for(headers: list[str], source: Path) -> dict[str, Any]:
-    if "Diabetes_012" in headers:
-        return {
-            "kind": "brfss",
-            "name": "BRFSS 2015 — Indicadores de salud y diabetes",
-            "source": source.name,
-            "target": "Diabetes_012",
-            "target_name": "diabetes diagnosticada",
-            "positive": lambda row: (as_number(row.get("Diabetes_012")) or 0) >= 2,
-            "target_classes": {
-                "0": "Sin diabetes", "1": "Prediabetes", "2": "Diabetes",
-            },
-            "age_group": lambda row: brfss_age(row.get("Age")),
-            "bmi_group": lambda row: brfss_bmi(row.get("BMI")),
-            "factor_specs": [
-                ("HighBP", "Presión arterial alta", lambda value: binary_label(value, "Sí", "No")),
-                ("HighChol", "Colesterol alto", lambda value: binary_label(value, "Sí", "No")),
-                ("BMI", "IMC", brfss_bmi),
-                ("PhysActivity", "Actividad física", lambda value: binary_label(value, "Sí", "No")),
-                ("DiffWalk", "Dificultad para caminar", lambda value: binary_label(value, "Sí", "No")),
-                ("GenHlth", "Salud general percibida", general_health),
-                ("Smoker", "Fumador/a actual o previo", lambda value: binary_label(value, "Sí", "No")),
-                ("Age", "Grupo de edad", brfss_age),
-            ],
-            "model_fields": [
-                "HighBP", "HighChol", "CholCheck", "BMI", "Smoker", "Stroke",
-                "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies",
-                "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth",
-                "MentHlth", "PhysHlth", "DiffWalk", "Sex", "Age", "Education", "Income",
-            ],
-            "field_labels": {
-                "HighBP": "Presión arterial alta", "HighChol": "Colesterol alto",
-                "CholCheck": "Control de colesterol", "BMI": "IMC", "Smoker": "Tabaquismo",
-                "Stroke": "Antecedente de ACV", "HeartDiseaseorAttack": "Enfermedad cardíaca",
-                "PhysActivity": "Actividad física", "Fruits": "Consumo de frutas",
-                "Veggies": "Consumo de vegetales", "HvyAlcoholConsump": "Alcohol de alto riesgo",
-                "AnyHealthcare": "Cobertura de salud", "NoDocbcCost": "Barreras económicas de atención",
-                "GenHlth": "Salud general percibida", "MentHlth": "Días de salud mental no buena",
-                "PhysHlth": "Días de salud física no buena", "DiffWalk": "Dificultad para caminar",
-                "Sex": "Sexo", "Age": "Grupo de edad", "Education": "Educación", "Income": "Ingreso",
-            },
-            "filter_specs": [
-                ("age", "Grupo de edad", lambda row: brfss_age(row.get("Age"))),
-                ("bmi", "IMC", lambda row: brfss_bmi(row.get("BMI"))),
-                ("highBP", "Presión arterial alta", lambda row: binary_label(row.get("HighBP"), "Sí", "No")),
-                ("activity", "Actividad física", lambda row: binary_label(row.get("PhysActivity"), "Sí", "No")),
-            ],
-            "quality_rules": [],
-        }
-    if "Outcome" in headers and {"Glucose", "BMI", "Age"}.issubset(headers):
-        return {
-            "kind": "pima",
-            "name": "Pima Indians Diabetes Database",
-            "source": source.name,
-            "target": "Outcome",
-            "target_name": "resultado positivo de diabetes",
-            "positive": lambda row: (as_number(row.get("Outcome")) or 0) == 1,
-            "target_classes": {"0": "Sin resultado positivo", "1": "Resultado positivo"},
-            "age_group": lambda row: pima_age(row.get("Age")),
-            "bmi_group": lambda row: pima_bmi(row.get("BMI")),
-            "factor_specs": [
-                ("Glucose", "Glucosa", pima_glucose),
-                ("BMI", "IMC", pima_bmi),
-                ("Age", "Grupo de edad", pima_age),
-                ("BloodPressure", "Presión arterial", lambda value: "0 (revisar)" if as_number(value) == 0 else "Con dato"),
-                ("Pregnancies", "Embarazos", lambda value: "0" if as_number(value) == 0 else "1–2" if (as_number(value) or 0) <= 2 else "3 o más"),
-                ("DiabetesPedigreeFunction", "Antecedente familiar (DPF)", lambda value: "Bajo" if (as_number(value) or 0) < 0.5 else "Medio" if (as_number(value) or 0) < 1 else "Alto"),
-            ],
-            "model_fields": [
-                "Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin",
-                "BMI", "DiabetesPedigreeFunction", "Age",
-            ],
-            "field_labels": {
-                "Pregnancies": "Embarazos", "Glucose": "Glucosa", "BloodPressure": "Presión arterial",
-                "SkinThickness": "Grosor de piel", "Insulin": "Insulina", "BMI": "IMC",
-                "DiabetesPedigreeFunction": "Antecedente familiar (DPF)", "Age": "Edad",
-            },
-            "filter_specs": [
-                ("age", "Grupo de edad", lambda row: pima_age(row.get("Age"))),
-                ("bmi", "IMC", lambda row: pima_bmi(row.get("BMI"))),
-                ("glucose", "Glucosa", lambda row: pima_glucose(row.get("Glucose"))),
-            ],
-            "quality_rules": [
-                ("Glucose", "Glucosa", "0 es clínicamente improbable"),
-                ("BloodPressure", "Presión arterial", "0 es clínicamente improbable"),
-                ("SkinThickness", "Grosor de piel", "0 es clínicamente improbable"),
-                ("Insulin", "Insulina", "0 es clínicamente improbable"),
-                ("BMI", "IMC", "0 es clínicamente improbable"),
-            ],
-        }
-    raise ValueError(
-        "El CSV encontrado no tiene una estructura compatible. Se espera BRFSS "
-        "(Diabetes_012) o Pima (Outcome, Glucose, BMI y Age)."
-    )
+    return {
+        "kind": "brfss",
+        "name": "BRFSS 2015 — Indicadores de Salud y Diabetes",
+        "source": source.name,
+        "target": "Diabetes_012",
+        "target_name": "diabetes confirmada (clase 2)",
+        "positive": lambda row: (as_number(row.get("Diabetes_012")) or 0) >= 2,
+        "target_classes": {
+            "0": "Sin diabetes", "1": "Prediabetes", "2": "Diabetes confirmada",
+        },
+        "age_group": lambda row: brfss_age(row.get("Age")),
+        "bmi_group": lambda row: brfss_bmi(row.get("BMI")),
+        "factor_specs": [
+            ("HighBP", "Presión arterial alta", lambda value: binary_label(value, "Sí", "No")),
+            ("HighChol", "Colesterol alto", lambda value: binary_label(value, "Sí", "No")),
+            ("GenHlth", "Salud general percibida", general_health),
+            ("BMI", "IMC", brfss_bmi),
+            ("DiffWalk", "Dificultad para caminar", lambda value: binary_label(value, "Sí", "No")),
+            ("HeartDiseaseorAttack", "Enfermedad cardíaca", lambda value: binary_label(value, "Sí", "No")),
+            ("Age", "Grupo de edad", brfss_age),
+            ("PhysActivity", "Actividad física", lambda value: binary_label(value, "Sí", "No")),
+            ("Smoker", "Fumador/a actual o previo", lambda value: binary_label(value, "Sí", "No")),
+            ("Stroke", "Antecedente de ACV", lambda value: binary_label(value, "Sí", "No")),
+            ("HvyAlcoholConsump", "Consumo alto de alcohol", lambda value: binary_label(value, "Sí", "No")),
+        ],
+        "model_fields": [
+            "HighBP", "HighChol", "CholCheck", "BMI", "Smoker", "Stroke",
+            "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies",
+            "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth",
+            "MentHlth", "PhysHlth", "DiffWalk", "Sex", "Age", "Education", "Income",
+        ],
+        "field_labels": {
+            "HighBP": "Presión arterial alta", "HighChol": "Colesterol alto",
+            "CholCheck": "Control de colesterol", "BMI": "IMC", "Smoker": "Tabaquismo",
+            "Stroke": "Antecedente de ACV", "HeartDiseaseorAttack": "Enfermedad cardíaca",
+            "PhysActivity": "Actividad física", "Fruits": "Consumo de frutas",
+            "Veggies": "Consumo de vegetales", "HvyAlcoholConsump": "Alcohol de alto riesgo",
+            "AnyHealthcare": "Cobertura de salud", "NoDocbcCost": "Barreras económicas de atención",
+            "GenHlth": "Salud general percibida", "MentHlth": "Días de salud mental no buena",
+            "PhysHlth": "Días de salud física no buena", "DiffWalk": "Dificultad para caminar",
+            "Sex": "Sexo", "Age": "Grupo de edad", "Education": "Educación", "Income": "Ingreso",
+        },
+        "filter_specs": [
+            ("age", "Grupo de edad", lambda row: brfss_age(row.get("Age"))),
+            ("bmi", "IMC", lambda row: brfss_bmi(row.get("BMI"))),
+            ("highBP", "Presión arterial alta", lambda row: binary_label(row.get("HighBP"), "Sí", "No")),
+            ("highChol", "Colesterol alto", lambda row: binary_label(row.get("HighChol"), "Sí", "No")),
+            ("genHlth", "Salud general", lambda row: general_health(row.get("GenHlth"))),
+            ("activity", "Actividad física", lambda row: binary_label(row.get("PhysActivity"), "Sí", "No")),
+        ],
+        "quality_rules": [],
+    }
 
 
 @lru_cache(maxsize=1)
@@ -277,7 +204,7 @@ def group_rates(
 
 
 def factor_summary(rows: list[dict[str, str]], schema: dict[str, Any], baseline: float) -> list[dict[str, Any]]:
-    minimum = 100 if schema["kind"] == "brfss" else 15
+    minimum = 100
     summaries: list[dict[str, Any]] = []
     for field, label, bucket in schema["factor_specs"]:
         rates = group_rates(rows, lambda row, fn=bucket, key=field: fn(row.get(key)), schema["positive"], minimum)
@@ -300,8 +227,6 @@ def target_distribution(rows: list[dict[str, str]], schema: dict[str, Any]) -> l
     field = schema["target"]
     items = []
     for raw, label in schema["target_classes"].items():
-        # BRFSS suele venir como 0.0/1.0/2.0, mientras Pima usa 0/1.
-        # Comparar como número evita que el resumen cambie por ese detalle de CSV.
         expected = as_number(raw)
         count = sum(1 for row in rows if as_number(row.get(field)) == expected)
         items.append({"label": label, "count": count, "rate": percentage(count, len(rows))})
@@ -314,13 +239,8 @@ def quality_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: 
         absent = sum(1 for row in rows if row.get(header, "") == "")
         if absent:
             missing.append({"field": header, "count": absent, "rate": percentage(absent, len(rows)), "note": "Vacío en el archivo"})
-    special = []
-    for field, label, note in schema["quality_rules"]:
-        count = sum(1 for row in rows if as_number(row.get(field)) == 0)
-        if count:
-            special.append({"field": label, "count": count, "rate": percentage(count, len(rows)), "note": note})
     return {
-        "missing": sorted(missing + special, key=lambda item: item["count"], reverse=True)[:8],
+        "missing": missing,
         "rows": len(rows),
         "columns": len(headers),
         "has_pii": False,
@@ -328,64 +248,41 @@ def quality_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: 
 
 
 def protocol_for(rows: list[dict[str, str]], schema: dict[str, Any], headers: list[str]) -> dict[str, Any]:
-    """Traduce la estructura de protocolo a lo que sí permite el dataset disponible."""
     target = schema["target"]
     eligible_target = sum(1 for row in rows if as_number(row.get(target)) is not None)
     core_fields = [field for field in schema["model_fields"] if field in headers]
-    usable_core = 0
-    for row in rows:
-        values = [as_number(row.get(field)) for field in core_fields]
-        if as_number(row.get(target)) is not None and any(value is not None for value in values):
-            usable_core += 1
+    usable_core = sum(1 for row in rows if as_number(row.get(target)) is not None and any(as_number(row.get(f)) is not None for f in core_fields))
 
-    if schema["kind"] == "brfss":
-        question = (
-            "¿Qué capacidad tienen los indicadores sociodemográficos y de salud disponibles "
-            "para discriminar la diabetes diagnosticada dentro de esta muestra?"
-        )
-        design = "Observacional, analítico, retrospectivo y de desarrollo tecnológico con datos secundarios."
-        outcome_definition = "Diabetes_012 = 2 (diabetes); 0 y 1 se consideran no diabetes diagnosticada para el modelo exploratorio."
-        variables = [
-            ("Diabetes diagnosticada", "Diabetes_012", "Desenlace", "Cualitativa nominal", outcome_definition),
-            ("IMC", "BMI", "Predictor", "Cuantitativa continua", "Valor de índice de masa corporal reportado."),
-            ("Presión arterial alta", "HighBP", "Predictor", "Cualitativa dicotómica", "Indicador 0/1 del archivo."),
-            ("Colesterol alto", "HighChol", "Predictor", "Cualitativa dicotómica", "Indicador 0/1 del archivo."),
-            ("Actividad física", "PhysActivity", "Predictor", "Cualitativa dicotómica", "Indicador 0/1 del archivo."),
-            ("Edad", "Age", "Predictor", "Ordinal", "Categoría de edad codificada en la fuente."),
-            ("Sexo", "Sex", "Predictor", "Cualitativa dicotómica", "Categoría codificada en la fuente."),
-        ]
-    else:
-        question = (
-            "¿Qué capacidad tienen las variables clínicas disponibles para discriminar un resultado "
-            "positivo de diabetes dentro de la muestra Pima?"
-        )
-        design = "Observacional, analítico, retrospectivo y de desarrollo tecnológico con datos secundarios."
-        outcome_definition = "Outcome = 1 (resultado positivo) y Outcome = 0 (sin resultado positivo)."
-        variables = [
-            ("Resultado positivo de diabetes", "Outcome", "Desenlace", "Cualitativa dicotómica", outcome_definition),
-            ("Glucosa", "Glucose", "Predictor", "Cuantitativa continua", "Concentración de glucosa registrada; 0 se trata como dato clínicamente improbable."),
-            ("IMC", "BMI", "Predictor", "Cuantitativa continua", "Índice de masa corporal registrado; 0 se trata como dato clínicamente improbable."),
-            ("Edad", "Age", "Predictor", "Cuantitativa continua", "Edad en años."),
-            ("Presión arterial", "BloodPressure", "Predictor", "Cuantitativa continua", "Valor registrado; 0 se revisa como dato clínicamente improbable."),
-            ("Antecedente familiar", "DiabetesPedigreeFunction", "Predictor", "Cuantitativa continua", "Diabetes Pedigree Function de la fuente."),
-        ]
+    variables = [
+        ("Diabetes confirmada", "Diabetes_012", "Desenlace", "Cualitativa policotómica", "0=Sin diabetes, 1=Prediabetes, 2=Diabetes confirmada. Para el score se excluye prediabetes."),
+        ("IMC", "BMI", "Predictor", "Cuantitativa continua", "Índice de masa corporal (discretizado ≤25, 25-30, 30-35, >35)."),
+        ("Edad", "Age", "Predictor", "Ordinal (13 categorías)", "Categorías etarias BRFSS 1-13 (18-24 hasta ≥80)."),
+        ("Salud general percibida", "GenHlth", "Predictor", "Ordinal (1-5)", "1=Excelente a 5=Mala."),
+        ("Presión arterial alta", "HighBP", "Predictor", "Cualitativa dicotómica", "1=Diagnosticado hipertenso, 0=No."),
+        ("Colesterol alto", "HighChol", "Predictor", "Cualitativa dicotómica", "1=Diagnosticado colesterol alto, 0=No."),
+        ("Dificultad para caminar", "DiffWalk", "Predictor", "Cualitativa dicotómica", "1=Dificultad seria para caminar o subir escaleras, 0=No."),
+        ("Enfermedad cardíaca", "HeartDiseaseorAttack", "Predictor", "Cualitativa dicotómica", "1=Enfermedad coronaria o infarto, 0=No."),
+        ("Derrame previo", "Stroke", "Predictor", "Cualitativa dicotómica", "1=Accidente cerebrovascular previo, 0=No."),
+        ("Actividad física", "PhysActivity", "Predictor", "Cualitativa dicotómica", "1=Actividad física en los últimos 30 días, 0=No."),
+        ("Consumo alto de alcohol", "HvyAlcoholConsump", "Predictor", "Cualitativa dicotómica", "1=Consumo elevado (hombres >14 tragos/sem, mujeres >7), 0=No."),
+    ]
 
     return {
         "title": "Protocolo analítico de diabetes y apoyo a decisiones",
-        "question": question,
-        "objective": "Caracterizar los indicadores disponibles y evaluar un modelo exploratorio de clasificación para apoyar la priorización poblacional.",
+        "question": "¿Qué capacidad discriminatoria tienen los factores clínicos y de estilo de vida para identificar diabetes confirmada mediante un sistema de puntuación transparente frente a modelos de ML?",
+        "objective": "Desarrollar y validar un score estadístico interpretable (Sullivan/Framingham) y compararlo con modelos supervisados para priorizar tamizaje poblacional de diabetes.",
         "objectives": [
-            "Describir la frecuencia del desenlace y el perfil de la población incluida.",
-            "Operacionalizar los predictores clínicos y conductuales disponibles en la fuente.",
-            "Evaluar asociaciones descriptivas por subgrupo, sin atribuir causalidad.",
-            "Validar modelos de clasificación con un conjunto de prueba separado.",
-            "Traducir resultados agregados en acciones de prevención, tamizaje y seguimiento.",
+            "Caracterizar la prevalencia de diabetes según indicadores sociodemográficos y clínicos en BRFSS 2015.",
+            "Construir un score de puntuación entero basado en odds ratios ajustados sin cajas negras.",
+            "Estratificar a la población en niveles de riesgo clínico (Bajo, Moderado, Alto, Muy alto) con punto de corte de derivación.",
+            "Validar la sensibilidad (85.5%), especificidad (58.5%) y AUC (0.798) del score y contrastarlo con Regresión Logística y Random Forest.",
+            "Proveer una herramienta clínica interactiva que asigne puntos y oriente la derivación oportuna.",
         ],
-        "design": design,
-        "unit": "Cada fila del archivo representa una observación; el tablero no identifica ni perfila personas individuales.",
+        "design": "Observacional, analítico, transversal de base poblacional con datos secundarios del BRFSS 2015.",
+        "unit": "Cada registro corresponde a un adulto encuestado; datos anonimizados sin identificación individual.",
         "eligibility": {
-            "included": f"Registros con desenlace {target} válido y al menos un predictor disponible.",
-            "excluded": "Registros sin desenlace, valores clínicamente improbables tratados como faltantes y campos no disponibles para una comparación específica.",
+            "included": "Adultos con registro completo de Diabetes_012 y factores de riesgo clave.",
+            "excluded": "Duplicados exactos (23,899) y registros con IMC fisiológicamente inverosímil (<12 o >60, n=805). En el ajuste del score se excluye prediabetes (clase 1, 1.8%).",
             "all": len(rows), "valid_target": eligible_target, "usable": usable_core,
         },
         "variables": [
@@ -393,16 +290,16 @@ def protocol_for(rows: list[dict[str, str]], schema: dict[str, Any], headers: li
             for name, field, role, kind, definition in variables if field in headers
         ],
         "ethics": [
-            "Mostrar únicamente resultados agregados; no inferir riesgo clínico individual desde este tablero.",
-            "No incorporar identificadores directos ni combinar fuentes sin base legal, aprobación ética y controles de acceso.",
-            "Antes de uso operativo, validar sesgos, desempeño por subgrupo y pertinencia clínica con profesionales de salud.",
+            "Mostrar únicamente resultados agregados; no inferir diagnósticos médicos automáticos.",
+            "Todos los análisis y calculadoras incluyen avisos de descargo de responsabilidad no diagnóstica.",
+            "Preservar privacidad: sin almacenamiento de información de salud protegida (PII/PHI).",
         ],
     }
 
 
 def model_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: list[str]) -> dict[str, Any]:
-    """Entrena una comparación reproducible, conservando el conjunto de prueba separado."""
-    cache_key = f"{schema['source']}:{len(rows)}:{','.join(headers)}"
+    """Entrena y evalúa modelos ML en split estratificado 80/20 con caché."""
+    cache_key = f"{schema['source']}:{len(rows)}"
     if cache_key in MODEL_CACHE:
         return MODEL_CACHE[cache_key]
     try:
@@ -418,20 +315,20 @@ def model_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: li
 
         fields = [field for field in schema["model_fields"] if field in headers]
         if len(fields) < 2:
-            raise ValueError("No hay predictores suficientes para entrenar el modelo.")
+            raise ValueError("No hay predictores suficientes para entrenar.")
+
         frame = pd.DataFrame([{field: as_number(row.get(field)) for field in fields} for row in rows])
         target = np.array([int(schema["positive"](row)) for row in rows])
-        if schema["kind"] == "pima":
-            for field in ("Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"):
-                if field in frame:
-                    frame.loc[frame[field] == 0, field] = np.nan
+
         if len(np.unique(target)) < 2:
-            raise ValueError("El desenlace solo tiene una clase; no es posible validar un clasificador.")
+            raise ValueError("Desenlace con una sola clase.")
+
         x_train, x_test, y_train, y_test = train_test_split(
             frame, target, test_size=0.20, random_state=42, stratify=target
         )
+
         models = {
-            "Regresión logística": Pipeline([
+            "Regresión Logística": Pipeline([
                 ("imputer", SimpleImputer(strategy="median")),
                 ("scale", StandardScaler()),
                 ("model", LogisticRegression(max_iter=1500, class_weight="balanced", random_state=42)),
@@ -439,13 +336,12 @@ def model_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: li
             "Random Forest": Pipeline([
                 ("imputer", SimpleImputer(strategy="median")),
                 ("model", RandomForestClassifier(
-                    n_estimators=160 if len(rows) > 10_000 else 300,
-                    max_depth=12 if len(rows) > 10_000 else None,
-                    min_samples_leaf=3 if len(rows) > 10_000 else 1,
+                    n_estimators=100, max_depth=12, min_samples_leaf=4,
                     class_weight="balanced", random_state=42, n_jobs=-1,
                 )),
             ]),
         }
+
         evaluations: list[dict[str, Any]] = []
         fitted: dict[str, Any] = {}
         for name, model in models.items():
@@ -454,24 +350,27 @@ def model_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: li
             probability = model.predict_proba(x_test)[:, 1]
             evaluation = {
                 "name": name,
-                "accuracy": round(accuracy_score(y_test, prediction), 3),
-                "precision": round(precision_score(y_test, prediction, zero_division=0), 3),
-                "recall": round(recall_score(y_test, prediction, zero_division=0), 3),
-                "f1": round(f1_score(y_test, prediction, zero_division=0), 3),
-                "auc": round(roc_auc_score(y_test, probability), 3),
+                "accuracy": round(float(accuracy_score(y_test, prediction)), 3),
+                "precision": round(float(precision_score(y_test, prediction, zero_division=0)), 3),
+                "recall": round(float(recall_score(y_test, prediction, zero_division=0)), 3),
+                "f1": round(float(f1_score(y_test, prediction, zero_division=0)), 3),
+                "auc": round(float(roc_auc_score(y_test, probability)), 3),
             }
             evaluations.append(evaluation)
             fitted[name] = (model, probability)
+
         best = max(evaluations, key=lambda item: (item["auc"], item["recall"]))
         selected, probability = fitted[best["name"]]
         estimator = selected.named_steps["model"]
         importance = getattr(estimator, "feature_importances_", None)
         if importance is None:
             importance = np.abs(estimator.coef_[0])
+
         features = sorted(
             [{"label": schema["field_labels"].get(field, field), "value": round(float(value), 4)} for field, value in zip(fields, importance)],
             key=lambda item: item["value"], reverse=True,
         )[:8]
+
         risk_buckets: dict[str, list[float]] = defaultdict(list)
         observed_buckets: dict[str, list[int]] = defaultdict(list)
         for score, actual in zip(probability, y_test):
@@ -487,14 +386,15 @@ def model_report(rows: list[dict[str, str]], schema: dict[str, Any], headers: li
             }
             for label in risk_order if risk_buckets[label]
         ]
+
         result = {
             "status": "ok", "train_n": len(x_train), "test_n": len(x_test),
             "positive_rate": percentage(int(target.sum()), len(target)), "models": evaluations,
             "selected": best["name"], "features": features, "risk_bands": risk_bands,
-            "note": "Resultados exploratorios en un conjunto de prueba separado (20%). No se deben usar como diagnóstico ni decisión clínica individual.",
+            "note": "Evaluación en conjunto de prueba separado (20%). Enfoque comparativo frente al score estadístico.",
         }
-    except Exception as error:  # Permite que el tablero descriptivo siga disponible.
-        result = {"status": "unavailable", "message": f"No fue posible calcular la validación: {error}"}
+    except Exception as error:
+        result = {"status": "unavailable", "message": f"No fue posible calcular validación ML: {error}"}
     MODEL_CACHE[cache_key] = result
     return result
 
@@ -504,50 +404,64 @@ def data_health(rows: list[dict[str, str]], schema: dict[str, Any], headers: lis
     positives = sum(1 for row in selected if schema["positive"](row))
     baseline = percentage(positives, len(selected))
     factors = factor_summary(selected, schema, baseline)
-    age_rates = group_rates(selected, schema["age_group"], schema["positive"], 20 if schema["kind"] == "brfss" else 10)
-    bmi_rates = group_rates(selected, schema["bmi_group"], schema["positive"], 20 if schema["kind"] == "brfss" else 10)
-    segment_rows = []
-    segment_buckets: dict[str, list[int]] = defaultdict(lambda: [0, 0])
-    for row in selected:
-        age = schema["age_group"](row)
-        bmi = schema["bmi_group"](row)
-        if "Sin dato" not in {age, bmi}:
-            key = f"{age} · IMC {bmi}"
-            segment_buckets[key][0] += 1
-            segment_buckets[key][1] += int(schema["positive"](row))
-    for label, values in segment_buckets.items():
-        if values[0] >= (100 if schema["kind"] == "brfss" else 10):
-            segment_rows.append({"label": label, "n": values[0], "rate": percentage(values[1], values[0])})
-    segments = sorted(segment_rows, key=lambda item: item["rate"], reverse=True)[:6]
+    age_rates = group_rates(selected, schema["age_group"], schema["positive"], 20)
+    bmi_rates = group_rates(selected, schema["bmi_group"], schema["positive"], 20)
 
-    numeric_means = {}
-    for field in ("BMI", "Glucose", "Age"):
-        values = [as_number(row.get(field)) for row in selected]
-        values = [value for value in values if value is not None and not (schema["kind"] == "pima" and field in {"BMI", "Glucose"} and value == 0)]
-        if values:
-            numeric_means[field] = round(sum(values) / len(values), 1)
+    # Score estadístico
+    score_data = get_score_summary()
+
+    # Modelos ML
+    ml_report = model_report(rows, schema, headers)
+
+    # Comparación unificada de enfoques
+    comparison_table = [
+        {
+            "approach": "Score Estadístico (Sullivan / Framingham)",
+            "type": "Estadístico Interpretable",
+            "sensitivity": f"{score_data['metrics']['sensitivity']:.1f}%",
+            "specificity": f"{score_data['metrics']['specificity']:.1f}%",
+            "ppv": f"{score_data['metrics']['ppv']:.1f}%",
+            "npv": f"{score_data['metrics']['npv']:.1f}%",
+            "auc": f"{score_data['metrics']['auc']:.3f}",
+            "interpretability": "Máxima (reglas aditivas directas y auditables)",
+            "use_case": "Tamizaje en atención primaria sin infraestructura digital compleja",
+        }
+    ]
+    if ml_report.get("status") == "ok":
+        for m in ml_report.get("models", []):
+            comparison_table.append({
+                "approach": m["name"],
+                "type": "Machine Learning",
+                "sensitivity": f"{m['recall']*100:.1f}%",
+                "specificity": "—",
+                "ppv": f"{m['precision']*100:.1f}%",
+                "npv": "—",
+                "auc": f"{m['auc']:.3f}",
+                "interpretability": "Moderada a baja (coeficientes / ensamble de árboles)",
+                "use_case": "Análisis multivariado y benchmarking técnico",
+            })
 
     top = factors[0] if factors else None
     if not selected:
         recommendation = {
-            "problem": "El filtro no devuelve registros.",
+            "problem": "El filtro seleccionado no devuelve registros.",
             "finding": "No hay base suficiente para comparar este segmento.",
-            "action": "Amplía uno o más filtros antes de priorizar una acción.",
+            "action": "Amplía los filtros para ver el perfil poblacional.",
             "follow_up": "Revisar el tamaño muestral antes de interpretar tasas.",
         }
     elif top:
         recommendation = {
-            "problem": f"La proporción de {schema['target_name']} es {baseline:.1f}% en la población filtrada.",
-            "finding": f"La mayor tasa observada fue {top['rate']:.1f}% en «{top['factor']}: {top['group']}» (n={pretty_number(top['n'])}).",
-            "action": f"Priorizar una intervención preventiva y de detección para ese segmento; validar factibilidad con el equipo clínico.",
-            "follow_up": "Medir cobertura, tamizajes completados y variación de la tasa por segmento en el próximo corte.",
+            "problem": f"La proporción de diabetes confirmada es {baseline:.1f}% en la selección actual.",
+            "finding": f"Mayor tasa observada: {top['rate']:.1f}% en «{top['factor']}: {top['group']}» (n={pretty_number(top['n'])}).",
+            "action": f"Priorizar tamizaje preventivo y derivación con corte score ≥ {score_data['derivation_cutoff']} para evaluación confirmatoria.",
+            "follow_up": "Monitorear cobertura de pruebas HbA1c y porcentaje de casos confirmados derivados a control.",
         }
     else:
         recommendation = {
             "problem": "No hay suficientes grupos comparables para priorizar factores.",
             "finding": "La selección actual limita la lectura de asociaciones.",
             "action": "Usar un filtro más amplio o revisar la calidad de los campos.",
-            "follow_up": "Confirmar tamaño muestral y completitud antes de tomar decisiones.",
+            "follow_up": "Confirmar tamaño muestral antes de tomar decisiones.",
         }
 
     available_filters = []
@@ -557,40 +471,37 @@ def data_health(rows: list[dict[str, str]], schema: dict[str, Any], headers: lis
 
     return {
         "dataset": {
-            "name": schema["name"], "source": schema["source"], "kind": schema["kind"],
-            "target": schema["target_name"], "fallback": schema["kind"] == "pima",
+            "name": schema["name"],
+            "source": schema["source"],
+            "kind": schema["kind"],
+            "target": schema["target_name"],
         },
         "filters": available_filters,
         "selection": {"n": len(selected), "positive": positives, "prevalence": baseline},
         "kpis": [
-            {"label": "Registros analizados", "value": pretty_number(len(selected)), "context": f"de {pretty_number(len(rows))} registros"},
-            {"label": schema["target_name"].capitalize(), "value": f"{baseline:.1f}%", "context": f"{pretty_number(positives)} resultados positivos"},
-            {"label": "IMC promedio", "value": f"{numeric_means.get('BMI', 0):.1f}", "context": "excluye valores 0 clínicamente improbables" if schema["kind"] == "pima" else "en el segmento actual"},
-            {"label": "Glucosa promedio", "value": f"{numeric_means.get('Glucose', 0):.1f}" if "Glucose" in numeric_means else "—", "context": "solo disponible en Pima" if schema["kind"] == "pima" else "no incluida en BRFSS"},
+            {"label": "Registros analizados", "value": pretty_number(len(selected)), "context": f"de {pretty_number(len(rows))} en BRFSS 2015"},
+            {"label": "Prevalencia de diabetes", "value": f"{baseline:.1f}%", "context": f"{pretty_number(positives)} casos confirmados"},
+            {"label": "Sensibilidad del Score", "value": f"{score_data['metrics']['sensitivity']:.1f}%", "context": f"Detecta {pretty_number(score_data['metrics']['detected_diabetics'])} de {pretty_number(score_data['metrics']['total_diabetics'])} diabéticos (corte ≥7)"},
+            {"label": "AUC del Score", "value": f"{score_data['metrics']['auc']:.3f}", "context": "Discriminación Mann-Whitney sin sobreajuste"},
+            {"label": "Rango de Score", "value": f"{score_data['score_min']} a {score_data['score_max']}", "context": f"Promedio poblacional: {score_data['score_mean']}"},
+            {"label": "Población a derivar", "value": f"{score_data['derived_pct']:.1f}%", "context": f"Score ≥ {score_data['derivation_cutoff']} (Riesgo Moderado a Muy Alto)"},
         ],
         "distribution": target_distribution(selected, schema),
-        "factors": factors[:6],
+        "factors": factors[:8],
         "age_rates": sorted(age_rates, key=lambda item: item["rate"], reverse=True),
         "bmi_rates": sorted(bmi_rates, key=lambda item: item["rate"], reverse=True),
-        "segments": segments,
+        "score": score_data,
+        "model_comparison": comparison_table,
+        "model": ml_report,
         "quality": quality_report(rows, schema, headers),
         "protocol": protocol_for(rows, schema, headers),
-        # La validación se calcula sobre la fuente completa y no cambia al filtrar;
-        # así se evita presentar el mismo segmento como entrenamiento y prueba.
-        "model": model_report(rows, schema, headers),
         "recommendation": recommendation,
-        "method": [
-            ["1. Plantear", "Formula la pregunta, el desenlace y el uso previsto del resultado."],
-            ["2. Operacionalizar", "Define población, criterios, variables y reglas de calidad antes de analizar."],
-            ["3. Describir", "Resume frecuencias, dispersión y asociaciones por segmento; no confundas asociación con causa."],
-            ["4. Validar", "Evalúa el modelo en datos separados con recall, precisión, F1 y ROC-AUC."],
-            ["5. Decidir y seguir", "Prioriza acciones poblacionales, asigna responsables y monitorea indicadores de cobertura y resultados."],
-        ],
+        "disclaimer": score_data["disclaimer"],
     }
 
 
 class DashboardHandler(SimpleHTTPRequestHandler):
-    """Entrega frontend estático y solamente las rutas API necesarias."""
+    """Maneja frontend estático y endpoints de la API JSON."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, directory=str(STATIC_DIR), **kwargs)
@@ -604,30 +515,62 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def do_GET(self) -> None:  # noqa: N802 - API de la librería estándar
+    def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
-        if parsed.path in {"/api/dashboard", "/api/health"}:
+        if parsed.path in {"/api/dashboard", "/api/health", "/api/score/summary"}:
             try:
-                rows, schema, headers = load_dataset()
                 if parsed.path == "/api/health":
-                    return self.send_json({"status": "ok", "dataset": schema["source"], "rows": len(rows)})
+                    rows, schema, _ = load_dataset()
+                    return self.send_json({
+                        "status": "ok",
+                        "dataset": schema["source"],
+                        "rows": len(rows),
+                        "score_engine": "ready",
+                    })
+                if parsed.path == "/api/score/summary":
+                    return self.send_json(get_score_summary())
+
+                rows, schema, headers = load_dataset()
                 filters = {key: values[-1] for key, values in parse_qs(parsed.query).items()}
                 return self.send_json(data_health(rows, schema, headers, filters))
             except (FileNotFoundError, ValueError, OSError) as error:
                 return self.send_json({"error": str(error)}, HTTPStatus.SERVICE_UNAVAILABLE)
+
         if parsed.path == "/":
             self.path = "/index.html"
         return super().do_GET()
 
+    def do_POST(self) -> None:  # noqa: N802
+        parsed = urlparse(self.path)
+        if parsed.path == "/api/score/calculate":
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                if content_length <= 0:
+                    return self.send_json({"error": "Cuerpo de solicitud vacío"}, HTTPStatus.BAD_REQUEST)
+                body = self.rfile.read(content_length).decode("utf-8")
+                patient_data = json.loads(body)
+                if not isinstance(patient_data, dict):
+                    return self.send_json({"error": "El payload debe ser un objeto JSON"}, HTTPStatus.BAD_REQUEST)
+
+                result = calculate_patient_score(patient_data)
+                return self.send_json(result, HTTPStatus.OK)
+            except json.JSONDecodeError as err:
+                return self.send_json({"error": f"JSON malformado: {err}"}, HTTPStatus.BAD_REQUEST)
+            except ValueError as err:
+                return self.send_json({"error": str(err)}, HTTPStatus.BAD_REQUEST)
+            except Exception as err:
+                return self.send_json({"error": f"Error interno: {err}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return self.send_json({"error": "Ruta no encontrada"}, HTTPStatus.NOT_FOUND)
+
     def log_message(self, format: str, *args: Any) -> None:
-        # Mantiene la terminal legible, sin eliminar los errores reales del servidor.
         print(f"[meddata] {self.address_string()} - {format % args}")
 
 
 def main() -> None:
     mimetypes.add_type("application/javascript", ".js")
     server = ThreadingHTTPServer(("127.0.0.1", PORT), DashboardHandler)
-    print(f"Tablero listo en http://127.0.0.1:{PORT}")
+    print(f"Tablero MedData listo en http://127.0.0.1:{PORT}")
     print("Presiona Ctrl+C para detenerlo.")
     try:
         server.serve_forever()

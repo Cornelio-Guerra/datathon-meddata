@@ -77,6 +77,11 @@ def get_score_summary() -> dict[str, Any]:
             "puntos": int(row["puntos"]),
         })
 
+    vp = int(ns["VP"])
+    fn = int(ns["FN"])
+    fp = int(ns["FP"])
+    vn = int(ns["VN"])
+
     return {
         "status": "ok",
         "method": "Sullivan et al. (Framework Framingham basado en Odds Ratios)",
@@ -94,6 +99,10 @@ def get_score_summary() -> dict[str, Any]:
             "ppv": round(float(ns["vpp"]) * 100.0, 1),
             "npv": round(float(ns["vpn"]) * 100.0, 1),
             "auc": round(float(ns["auc"]), 4),
+            "detected_diabetics": vp,
+            "total_diabetics": vp + fn,
+            "false_positives": fp,
+            "true_negatives": vn,
         },
         "risk_distribution": risk_distribution,
         "score_table": score_table,
@@ -106,15 +115,15 @@ def get_score_summary() -> dict[str, Any]:
 
 
 def discretize_bmi(bmi_val: float) -> tuple[int, str, int]:
-    """Mapea IMC continuo a nivel de Sullivan y puntos."""
-    if bmi_val < 25.0:
-        return 0, "< 25 (Normal / Bajo)", 0
-    elif bmi_val < 30.0:
-        return 1, "25.0 – 29.9 (Sobrepeso)", 1
-    elif bmi_val < 35.0:
-        return 2, "30.0 – 34.9 (Obesidad I)", 2
+    """Mapea IMC continuo a nivel de Sullivan y puntos (idéntico a pd.cut con right=True)."""
+    if bmi_val <= 25.0:
+        return 0, "≤ 25.0 (Normal / Bajo)", 0
+    elif bmi_val <= 30.0:
+        return 1, "25.1 – 30.0 (Sobrepeso)", 1
+    elif bmi_val <= 35.0:
+        return 2, "30.1 – 35.0 (Obesidad I)", 2
     else:
-        return 3, "≥ 35.0 (Obesidad II o III)", 2
+        return 3, "> 35.0 (Obesidad II o III)", 2
 
 
 def discretize_age(age_val: int | float) -> tuple[int, str, int]:
@@ -265,4 +274,3 @@ def calculate_patient_score(patient_data: dict[str, Any]) -> dict[str, Any]:
             "y NO constituye un diagnóstico médico. Consulte siempre a un profesional de la salud."
         ),
     }
-
