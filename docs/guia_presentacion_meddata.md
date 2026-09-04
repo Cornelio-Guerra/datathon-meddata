@@ -1,159 +1,176 @@
-# Guía de presentación — MedData Challenge
+# Guía de presentación — 5 minutos
 
-## Idea central
+**MedData Challenge · IEEE EMBS · CONTEC · UTP**
+Equipo: Cornelio Guerra · Jesús
 
-Construimos una herramienta de apoyo al tamizaje poblacional de diabetes con BRFSS 2015. Combina un score estadístico interpretable con modelos de machine learning para comparar explicabilidad y desempeño técnico. No es un diagnóstico: prioriza a quién ofrecer evaluación clínica confirmatoria.
+> ⏱️ **El límite es 5 minutos.** Esta guía sustituye al guion de 6–7 min anterior.
+> Los 4 puntos que exige el jurado están cubiertos: metodología, resultados,
+> visualizaciones e impacto.
 
-## Resumen de 30 segundos
+---
 
-> Analizamos 253,680 registros de salud para detectar patrones asociados con diabetes. Primero identificamos duplicados e inconsistencias; después construimos un score de riesgo basado en odds ratios y lo comparamos con Regresión Logística y Random Forest. El score alcanza AUC 0.798 y detecta 85.5% de los casos; Random Forest alcanza AUC 0.824. Así combinamos un benchmark técnico con una herramienta transparente para tamizaje.
+## Reparto
 
-## 1. Problema, pregunta y propósito
-
-**Problema.** Los recursos de salud son limitados y no todos los pacientes pueden recibir el mismo nivel de tamizaje preventivo.
-
-**Pregunta.** ¿Qué indicadores se asocian con mayor prevalencia de diabetes y qué tan bien prioriza un score simple la derivación a pruebas confirmatorias?
-
-**Propósito.** Detectar problemas de calidad, estratificar riesgo, comparar el score con ML y traducir evidencia agregada en acciones preventivas.
-
-## 2. Datos y calidad
-
-| Elemento | Resultado |
-|---|---:|
-| Dataset | BRFSS 2015 Diabetes Health Indicators |
-| Registros originales | 253,680 |
-| Variables | 22, todas numéricas |
-| Target | Diabetes_012: 0 sin diabetes, 1 prediabetes, 2 diabetes |
-| Diabetes confirmada original | 35,346 (13.9%) |
-| Duplicados exactos | 23,899 (9.4%) |
-| BMI fuera de rango 12–60 | 805 |
-| Inconsistencia seguro/costo | 7,838 |
-| Registros eliminados | 24,704 |
-| Registros finales del score | 228,976 |
-
-**Qué decir:** “No empezamos modelando: limpiamos primero. Evitamos que duplicados o valores clínicamente improbables parezcan patrones reales.”
-
-## 3. Score estadístico interpretable
-
-El motor src/score_diabetes.py usa el marco Sullivan/Framingham:
-
-1. Discretiza BMI, edad y salud autopercibida en categorías interpretables.
-2. Calcula prevalencias y odds ratios contra una categoría de referencia.
-3. Convierte ln(odds ratio) en puntos enteros con B = 0.7532.
-4. Suma los puntos de 10 factores: BMI, edad, salud autopercibida, presión alta, colesterol alto, movilidad, enfermedad cardíaca, ACV, actividad física y alcohol.
-5. Clasifica riesgo y recomienda derivación desde score ≥ 7.
-
-| Riesgo | Personas | Casos | Prevalencia |
-|---|---:|---:|---:|
-| Bajo | 115,913 | 5,059 | 4.4% |
-| Moderado | 56,450 | 10,103 | 17.9% |
-| Alto | 36,137 | 11,965 | 33.1% |
-| Muy alto | 15,864 | 7,799 | 49.2% |
-
-**Mensaje clave:** la prevalencia pasa de 4.4% a 49.2%, más de 11 veces entre los extremos. El score permite explicar el resultado factor por factor.
-
-## 4. Validación del score
-
-| Métrica (corte score ≥ 7) | Valor |
-|---|---:|
-| Sensibilidad | 85.5% |
-| Especificidad | 58.5% |
-| Valor predictivo positivo | 27.5% |
-| Valor predictivo negativo | 95.6% |
-| AUC Mann–Whitney | 0.7976 |
-| Población a derivar | 48.3% |
-
-El corte favorece sensibilidad porque, en tamizaje, es preferible una prueba confirmatoria adicional a omitir a una persona con posible diabetes.
-
-## 5. Machine learning: comparación técnica
-
-Los modelos usan el mismo dataset, división estratificada 80/20 y random_state=42. Son un benchmark, no un reemplazo del score.
-
-| Modelo | Preprocesamiento | Configuración |
-|---|---|---|
-| Regresión Logística | Imputación mediana + StandardScaler | max_iter=1500, class_weight="balanced" |
-| Random Forest | Imputación mediana | 100 árboles, profundidad 12, min_samples_leaf=4, class_weight="balanced" |
-
-| Enfoque | Accuracy | Precisión | Recall | F1 | ROC-AUC |
-|---|---:|---:|---:|---:|---:|
-| Score estadístico | — | 27.5% VPP | 85.5% | — | 0.798 |
-| Regresión Logística | 0.732 | 0.311 | 0.761 | 0.441 | 0.820 |
-| Random Forest | 0.732 | 0.313 | 0.770 | 0.445 | 0.824 |
-
-**Cómo explicarlo:** “Random Forest mejora el AUC en 0.026, pero el score se puede auditar, aplicar sin infraestructura compleja y prioriza una sensibilidad alta. No elegimos entre ML y score: usamos ML para medir el techo y el score para la decisión explicable.”
-
-## 6. Librerías y tecnologías
-
-| Tecnología | Rol |
+| Quién | Lleva |
 |---|---|
-| Python | Lógica, API local y automatización. |
-| pandas | Carga, limpieza, agrupaciones y prevalencias. |
-| NumPy | Cálculos numéricos, odds ratios y AUC por rangos. |
-| scikit-learn | Pipelines ML, imputación, escalado y métricas. |
-| matplotlib | Gráficas del notebook de análisis. |
-| Jupyter | Análisis reproducible y visualizaciones. |
-| openpyxl | Intercambio con hojas de cálculo si se requiere. |
-| HTML, CSS, JavaScript | Interfaz del dashboard. |
-| http.server | Servidor local y API JSON sin framework web pesado. |
+| **Cornelio** | Problema, metodología, resultados (0:00 – 2:30) |
+| **Jesús** | Dashboard y paciente en vivo, impacto, cierre (2:30 – 5:00) |
+| Quien no habla | Opera la pantalla |
 
-Entorno local verificado: pandas 3.0.5, NumPy 2.5.2, matplotlib 3.11.1, scikit-learn 1.9.0, Jupyter 1.1.1 y openpyxl 3.1.5.
+⚠️ **Abrir el dashboard 2 minutos antes de empezar.** La primera carga tarda ~10 s.
 
-## 7. Arquitectura
+---
 
-~~~
-BRFSS 2015 CSV
-  -> control de calidad y limpieza
-  -> score Sullivan/Framingham + modelos ML
-  -> API Python local
-  -> dashboard HTML/CSS/JavaScript
-  -> tamizaje, derivación y seguimiento
-~~~
+## Cifras oficiales — que ambos citen las mismas
 
-- src/score_diabetes.py: score estadístico y validación Mann–Whitney.
-- dashboard/score_adapter.py: resumen y cálculo individual del score para API.
-- dashboard/app.py: filtros, KPIs, ML, endpoints y recomendaciones.
-- dashboard/static/: interfaz del dashboard.
-- notebooks/analisis/analisis_jesus.ipynb: tres gráficas de apoyo.
+| Métrica | Valor |
+|---|---|
+| Población | **253,680** crudos → **228,976** depurados → **224,364** calibrados |
+| Inconsistencias detectadas | **24,704** |
+| AUC del score (Mann-Whitney) | **0.798** |
+| Sensibilidad (corte ≥7) | **85.5%** — 29,867 de 34,926 |
+| Especificidad | 58.5% |
+| VPN | **95.6%** |
+| Estratificación | 4.4% / 17.9% / 33.1% / 49.2% |
+| Random Forest (contraste) | **0.823** |
 
-## 8. Demo en vivo
+> Los tres números de población se dicen **siempre juntos**. Si el jurado suma la
+> columna `n` de la tabla de estratificación le da 224,364.
 
-1. Ejecutar ./run_dashboard.ps1 y abrir http://127.0.0.1:8000.
-2. Mostrar población, prevalencia, sensibilidad y AUC del score.
-3. Aplicar un filtro de edad o BMI y señalar el tamaño de muestra resultante.
-4. Mostrar factores y segmentos prioritarios; hablar de asociaciones, no causas.
-5. Explicar el score y sus cuatro niveles de riesgo.
-6. Comparar score, Regresión Logística y Random Forest.
-7. Cerrar con: problema → evidencia → tamizaje → confirmación clínica → seguimiento.
+---
 
-## 9. Guion de 6–7 minutos
+## Timeline
 
-| Tiempo | Diapositiva | Mensaje |
-|---:|---|---|
-| 0:00–0:40 | Problema | Detección temprana con recursos limitados. |
-| 0:40–1:30 | Datos y calidad | 253,680 registros y depuración previa. |
-| 1:30–2:40 | Score | Odds ratios convertidos en puntos claros. |
-| 2:40–3:30 | Riesgo | Prevalencia: 4.4% a 49.2%. |
-| 3:30–4:40 | ML | RF AUC 0.824 vs score 0.798. |
-| 4:40–5:40 | Dashboard | Filtros, KPIs, calidad y acciones. |
-| 5:40–6:30 | Ética | No diagnóstico, validación clínica obligatoria. |
+### 0:00 – 0:40 · El problema — *Cornelio*
+Pantalla: portada.
 
-## 10. Límites y preguntas del jurado
+> "Un sistema de salud tiene 253,680 registros y capacidad para estudiar solo a
+> una fracción. La pregunta no es quién tiene diabetes: es **a quién derivar
+> primero**."
 
-- Las asociaciones no prueban causalidad.
-- La solución no diagnostica diabetes; prioriza tamizaje y confirmación clínica.
-- El desempeño debe validarse de nuevo antes de usarlo en otra población.
-- La IA está documentada en USO_DE_IA.md; las decisiones metodológicas y la validación final son responsabilidad del equipo.
+> "Construimos un sistema de puntuación que responde eso con diez preguntas de
+> entrevista, sin laboratorio."
 
-**¿Por qué no usar solo Random Forest?** Porque el score es interpretable, auditable y útil donde no hay infraestructura de ML.
+### 0:40 – 1:40 · Metodología — *Cornelio*
+Pantalla: panel de calidad del dashboard.
 
-**¿Por qué priorizar sensibilidad?** Porque en prevención el costo de omitir un caso potencial puede ser mayor que enviar a una prueba confirmatoria adicional.
+> "Encontramos 24,704 inconsistencias: 23,899 duplicados exactos y 805 IMC
+> fisiológicamente imposibles."
 
-## Evidencia reproducible
+> "Usamos el framework de Sullivan, el mismo de Framingham: cada factor aporta
+> puntos derivados de su odds ratio. **Cada punto multiplica las probabilidades
+> por 1.45.** No hay pesos elegidos a mano."
 
-~~~
-.\.venv\Scripts\python.exe src\score_diabetes.py
-.\.venv\Scripts\python.exe dashboard\app.py
-~~~
+🎯 **La frase que los separa del resto:**
 
-La API expone GET /api/dashboard, GET /api/score/summary y POST /api/score/calculate.
+> "Verificamos si los duplicados eran errores o azar: tienen 1% de diabetes
+> contra 15% del resto. Corrimos ambos escenarios — sin deduplicar el AUC es
+> 0.816, deduplicando 0.798. **Presentamos la cifra que nos deja peor.**"
 
+### 1:40 – 2:30 · Resultados — *Cornelio*
+Pantalla: gráfica de estratificación.
+
+> "AUC 0.798, calculado con Mann-Whitney implementado a mano. Sensibilidad 85.5%:
+> detectamos 29,867 de 34,926 diabéticos."
+
+> "El score separa 11 veces: del 4.4% en el grupo bajo al 49.2% en el muy alto."
+
+**Adelántense a la pregunta del umbral:**
+
+> "El corte en 7 no maximiza el accuracy. Lo elegimos por el costo del error: un
+> falso negativo es un paciente que se va sin diagnóstico; un falso positivo solo
+> genera una prueba confirmatoria barata."
+
+### 2:30 – 3:30 · 🌟 Paciente en vivo — *Jesús*
+Pantalla: **calculadora individual del dashboard.**
+
+Entrada: **IMC 33 · 60-64 años · salud regular · hipertensión · colesterol alto**
+
+> "11 puntos. Riesgo alto. Prevalencia esperada 33.1%. Derivación prioritaria."
+
+Señalando el desglose por factor:
+
+> "Aquí está de dónde sale cada punto. Un médico puede auditar esta decisión
+> factor por factor. Con un modelo de caja negra no podría — y esto se suma
+> también en papel, sin computadora."
+
+**Plan B si el dashboard falla:** sumarlo en voz alta.
+`IMC 2 + Edad 2 + Salud 3 + Hipertensión 2 + Colesterol 2 = 11 → Alto → 33.1%`
+
+### 3:30 – 4:20 · Impacto — *Jesús*
+Pantalla: gráfica de puntos por factor.
+
+> "Tamizaje sin costo marginal: diez preguntas, aplicables por teléfono."
+> "Derivando al 48% de mayor puntaje capturamos el 85.5% de los casos."
+> "Y cuando el sistema dice bajo riesgo, acierta el 95.6% — permite descartar con
+> confianza a la mitad de la población."
+
+Si sobra tiempo, el hallazgo que sorprende:
+
+> "La salud autopercibida resultó el factor más fuerte: odds ratio 18.8, por
+> encima de presión alta y colesterol. Una pregunta que cuesta cero ordena mejor
+> que un análisis de sangre."
+
+### 4:20 – 5:00 · Límites y cierre — *Jesús*
+
+**Digan las limitaciones ustedes primero. Suma credibilidad.**
+
+> "Tres límites: los datos son autorreportados; nuestros odds ratio son crudos,
+> no ajustados por confusores; y calibramos y validamos sobre el mismo conjunto."
+
+**Cierre — el ML en 15 segundos, no en un minuto:**
+
+> "Los organizadores permitían machine learning. Probamos un Random Forest: 0.823
+> contra nuestro 0.798. **No elegimos entre ML y score: usamos ML para medir el
+> techo y el score para la decisión explicable.** Elegimos perder 25 milésimos a
+> cambio de un sistema que un médico puede auditar, aplicar en papel y explicarle
+> al paciente. Eso es lo que entendemos por justificable."
+
+Si sobran 10 segundos:
+
+> "Y es una herramienta de tamizaje, no de diagnóstico: requiere validación
+> clínica antes de cualquier uso real."
+
+---
+
+## Comparación de enfoques (por si la piden)
+
+| Enfoque | Recall | VPP | ROC-AUC | Auditable |
+|---|---|---|---|---|
+| Score estadístico | **85.5%** | 27.5% | 0.798 | **Sí, factor por factor** |
+| Random Forest | — | — | 0.823 | No |
+
+El 0.823 está medido sobre datos **sin deduplicar**, donde parte del conjunto de
+prueba son copias exactas del de entrenamiento. No son directamente comparables.
+
+---
+
+## Preguntas probables
+
+**"¿Por qué eliminaron 24,704 registros?"**
+> "23,899 eran duplicados exactos. En una encuesta de 22 variables la coincidencia
+> idéntica por azar en el perfil sano-modal es esperable, no un error de captura.
+> Por eso reportamos ambos escenarios."
+
+**"¿Por qué excluyeron la prediabetes?"**
+> "Es un estado intermedio con solo 1.8% de los casos, insuficiente para calibrar
+> pesos estables. Lo declaramos como limitación, no lo escondemos."
+
+**"¿Por qué no ajustaron por confusores?"**
+> "Es nuestra principal limitación y está declarada. Los odds ratio son crudos,
+> así que factores correlacionados aportan puntos de forma parcialmente
+> redundante. Con más tiempo, una regresión multivariable daría los pesos
+> ajustados."
+
+**"¿Validaron con datos independientes?"**
+> "No. Calibramos y validamos sobre el mismo conjunto, y está declarado en el
+> documento. Es lo primero que haríamos con más tiempo."
+
+---
+
+## Reglas
+
+1. **Si van tarde, corten metodología.** Nunca el paciente en vivo.
+2. **Ningún número que no esté en el PDF.** Todos los de esta guía están verificados.
+3. **Si no saben algo:** *"No lo medimos, y no quiero inventar una respuesta."*
+   El jurado castiga más el bluff que el "no sé".
