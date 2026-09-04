@@ -1,0 +1,156 @@
+de la rama de NBS, que es la rama que ve las aplicaciones de minería en Medicina y Europea.
+Es la primera hackathon de NBS, así que la verdad estoy muy agradecida por todos los que se inscribieron.
+Bueno, obviamente ya es la hackathon número no sé cuánto de Contex,
+pero especialmente de parte de NBS, pues estamos muy agradecidos por haber aceptado el resto.
+espero que les vaya muy bien a todos
+yo trate que es un reto
+ni tan complicado
+pero tampoco tan fácil porque la gran mayoría
+son de sistemas
+así que espero que les vaya muy bien
+mi nombre es
+espero que ya la mayoría de los que me conocen
+es súper gracia
+el coordinador actual del
+congreso de la capital
+el congreso con tecnología y con el science
+y bueno
+espero que les vaya bien
+en este mini-jarrando que vamos a tener hoy y que puedan recordar el reto que venimos.
+Bueno, chicos, ¿cómo está? Buenas tardes.
+Buenas tardes.
+Bien, para los que no conocen, mi nombre es Juan Picota, yo estoy como coordinador de extensión
+que es la Facultad del Sistema, y de parte del señor decano y de toda la parte de la administración de la facultad,
+queremos primero darles las gracias por aceptar el reto, entrar a una jacatón al principio,
+si es tu primera jacatón, le dame la mano que es su primera jacatón, excelente.
+Si es tu primera jacatón, es interesante y a la vez ser retador, no sabe lo que va a pasar,
+tienes una idea más o menos de lo que te explicaron de lo que tienes que hacer,
+pero hasta que veas el reto
+en realidad te vas a dar cuenta
+de que va el pollo, de que es lo que tienes que aplicar
+y lo que tienes que hacer
+yo quiero felicitarlos por aceptar eso
+no es cualquiera el que lo hace
+dénse cuenta que ustedes
+o sea, este solo es un buen cañón
+ustedes se atrevieron
+tomaron el reto
+y eso ya es
+ya eso es el beneficio, ya eso es el profit
+ustedes van a aprender
+algunas habilidades interesantes
+en la resolución de problemas, en el trabajo en equipo y en adaptarse a una situación desconocida.
+¿Ya saben ustedes con el reto? ¿Ya se lo dieron? ¿No, verdad? Entonces, cuando vean,
+cuando abran el paquete, cuando abran la caja de Pandora, van a tener que adaptarse, van
+a tener que utilizar todas las habilidades mentales, emocionales y de investigación
+para buscar la solución en el tiempo que tienen, que es un tiempo bastante corto. Yo les deseo
+los invito a seguir participando no solamente en temas de context,
+sino en todas las actividades que la facultad prepara para ustedes.
+Porque al final, lo que ustedes están haciendo es currículum.
+Al final, todo esto que ustedes están haciendo no es para tomar en foto a mí,
+sino para que ustedes tengan que poner en su hoja de vida.
+Son habilidades blandas, habilidades de investigación, habilidades de tecnología,
+habilidades de manejo de personal, manejo de estrés, todo eso es lo que tú vas a ver en esas ofertas laborales.
+y estas acciones
+los van a ayudar a ellos
+la mejor de la suerte muchachos
+es verdad que si
+y que ganes el mejor
+justo el tiempo
+en la ganchaco
+algo más?
+¿quista?
+entonces
+Mi mouse.
+
+Te lo cubro como nuevo.
+Te lo cubro como nuevo.
+¿Qué hora es?
+10.05.
+Nada más de la bienvenida. No has dicho nada.
+¿Solo es público?
+Sí. No dio tiempo para hablar de la casa técnica.
+¿Y quién ganó?
+Frank empezó a hacer los tres.
+Ah, ok.
+¿Dónde tiene un...
+Todavía no?
+Voy a tirar la regleta.
+Ah, pero no tiene que ser a mi casa.
+Mi institución tiene como...
+Tiene dos cabos.
+Ah, ok.
+¿Qué equipo de compañeros?
+Ahí estamos.
+Chao, chao.
+¿Y cómo están los otros grupos?
+Ah, no saben nada.
+Es individual.
+
+Es cool, en verdad.
+Sí, pero sí.
+Así me da menos pena.
+¿Ah?
+No hay tanta pena.
+¿Me están grabando con micrófono y todo?
+Ah, sí.
+Me hemos metagaming.
+O sea, tienes que usar micrófono.
+Exacto.
+Me hemos metagaming.
+Dije, oh, eso dijeron los demás.
+Vamos a cambiarlo nuestro.
+¿Y eso qué es?
+¿Ah?
+¿Qué?
+Es ok.
+Ah, un diagrama de la película que se recuse.
+Ah, yo creo que podemos ir a un hombre de un bote.
+¿Cómo estás en el token?
+Recién
+Recién recetado
+Voy a presentar más o menos
+cómo es el reglamento
+del datatom
+el challenge
+que viene
+se trata sobre
+diabetes
+el challenge se llama
+transformando datos médicos en sus soluciones inteligentes.
+Bueno, ya saben el nombre del datatón,
+quiénes los organizan,
+el horario es hasta las 4,
+para resolver el respeto.
+Y ya saben la temática,
+el dataset en unos minutos se va a estar enviando
+al WhatsApp, al grupo de WhatsApp creado,
+que eso está a través de EGEM.
+ya sabemos que estamos en el 2026
+tienen permitido cualquier tipo de uso de inteligencia artificial generativa
+ya sea cloud, codex, open code y demás
+nada más que tienen que estar sustentados y documentados
+no pueden decir que no es posible, obvio eso lo creo yo
+tienen que dar una parte donde diga
+usé tal inicial más o menos si usaron algún buen prono en específico y demás
+a las 3 y media van a tener un pequeño break en el que se la van a opinar
+un copy break
+El ejemplo es, el sistema de salud necesita una herramienta capaz de analizar automáticamente
+miles de registros de pacientes y detectar patrones relacionados con la diabetes.
+Su equipo deberá desarrollar un sistema puntacional que procese los datos, identifique inconsistencias,
+administrar factores clínicos, generar un sistema de puntuación y clasificar nuevos pacientes
+utilizando únicamente reglas matemáticas y métodos estadísticos.
+el equipo que presente la solución más precisa, eficiente y justificable
+será el gran número de él.
+¿Quieres decir una palabra al Chérenel del contexto?
+Bueno, Chérenel, espero que hayan lo mejor de ustedes,
+que en verdad esto es una oportunidad que ustedes puedan verse
+y ponerse a prueba en lo que son capaces de hacer,
+que al final, aunque sea la inteligencia artificial o lo que utilice, al final el pro, la idea que usted tenga, lo que importa, lo que quiera usted dar, entender.
+Al final, obviamente, ahora hay ganadores, pero para mí, y yo siempre lo voy a decir, todos son ganadores, todos tienen ese esfuerzo, esas ganas de querer probar a sí mismo, competir, entender sus ideas, comprender las soluciones que quieren dar con el problema.
+es lo importante
+así que un éxito a todos
+y que en verdad de lo mejor cada uno
+y con todo
+muchas gracias
+Gracias.
