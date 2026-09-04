@@ -24,7 +24,8 @@
 ## Calidad y salud
 
 - Identificar duplicados, BMI fuera de rango, contradicciones de seguro/costo y días inválidos.
-- No usar `sklearn`, RandomForest, LogisticRegression ni ningún modelo de machine learning.
+- Machine learning sí está permitido como comparación, según la aclaración más reciente de los organizadores.
+- Mantener el score estadístico como enfoque interpretable y compararlo con ML solo cuando sea útil.
 - Validar el score con prevalencias por nivel de riesgo, sensibilidad, especificidad y AUC de Mann-Whitney.
 - No presentar correlación o predicción como causalidad clínica.
 - No incluir datos personales ni secretos en notebooks, commits o outputs.
