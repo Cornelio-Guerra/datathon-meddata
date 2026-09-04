@@ -1,0 +1,616 @@
+1
+00:00:01,000 --> 00:00:07,460
+de la rama de NBS, que es la rama que ve las aplicaciones de minería en Medicina y Europea.
+
+2
+00:00:07,800 --> 00:00:14,520
+Es la primera hackathon de NBS, así que la verdad estoy muy agradecida por todos los que se inscribieron.
+
+3
+00:00:15,780 --> 00:00:19,240
+Bueno, obviamente ya es la hackathon número no sé cuánto de Contex,
+
+4
+00:00:19,440 --> 00:00:27,260
+pero especialmente de parte de NBS, pues estamos muy agradecidos por haber aceptado el resto.
+
+5
+00:00:27,260 --> 00:00:29,200
+espero que les vaya muy bien a todos
+
+6
+00:00:29,200 --> 00:00:31,300
+yo trate que es un reto
+
+7
+00:00:31,300 --> 00:00:33,320
+ni tan complicado
+
+8
+00:00:33,320 --> 00:00:35,500
+pero tampoco tan fácil porque la gran mayoría
+
+9
+00:00:35,500 --> 00:00:36,220
+son de sistemas
+
+10
+00:00:36,840 --> 00:00:39,400
+así que espero que les vaya muy bien
+
+11
+00:00:40,500 --> 00:00:41,580
+mi nombre es
+
+12
+00:00:41,580 --> 00:00:43,500
+espero que ya la mayoría de los que me conocen
+
+13
+00:00:43,500 --> 00:00:44,360
+es súper gracia
+
+14
+00:00:44,360 --> 00:00:46,760
+el coordinador actual del
+
+15
+00:00:46,760 --> 00:00:48,600
+congreso de la capital
+
+16
+00:00:48,600 --> 00:00:51,420
+el congreso con tecnología y con el science
+
+17
+00:00:51,420 --> 00:00:52,580
+y bueno
+
+18
+00:00:52,580 --> 00:00:54,840
+espero que les vaya bien
+
+19
+00:00:54,840 --> 00:01:02,240
+en este mini-jarrando que vamos a tener hoy y que puedan recordar el reto que venimos.
+
+20
+00:01:10,480 --> 00:01:13,600
+Bueno, chicos, ¿cómo está? Buenas tardes.
+
+21
+00:01:13,720 --> 00:01:14,320
+Buenas tardes.
+
+22
+00:01:14,760 --> 00:01:20,780
+Bien, para los que no conocen, mi nombre es Juan Picota, yo estoy como coordinador de extensión
+
+23
+00:01:20,780 --> 00:01:29,000
+que es la Facultad del Sistema, y de parte del señor decano y de toda la parte de la administración de la facultad,
+
+24
+00:01:29,140 --> 00:01:35,280
+queremos primero darles las gracias por aceptar el reto, entrar a una jacatón al principio,
+
+25
+00:01:35,440 --> 00:01:39,240
+si es tu primera jacatón, le dame la mano que es su primera jacatón, excelente.
+
+26
+00:01:39,740 --> 00:01:44,760
+Si es tu primera jacatón, es interesante y a la vez ser retador, no sabe lo que va a pasar,
+
+27
+00:01:45,180 --> 00:01:47,920
+tienes una idea más o menos de lo que te explicaron de lo que tienes que hacer,
+
+28
+00:01:47,920 --> 00:01:49,200
+pero hasta que veas el reto
+
+29
+00:01:49,200 --> 00:01:50,700
+en realidad te vas a dar cuenta
+
+30
+00:01:51,880 --> 00:01:54,220
+de que va el pollo, de que es lo que tienes que aplicar
+
+31
+00:01:54,220 --> 00:01:54,960
+y lo que tienes que hacer
+
+32
+00:01:55,960 --> 00:01:58,080
+yo quiero felicitarlos por aceptar eso
+
+33
+00:01:59,640 --> 00:02:01,760
+no es cualquiera el que lo hace
+
+34
+00:02:02,460 --> 00:02:03,920
+dénse cuenta que ustedes
+
+35
+00:02:03,920 --> 00:02:05,300
+o sea, este solo es un buen cañón
+
+36
+00:02:06,180 --> 00:02:07,480
+ustedes se atrevieron
+
+37
+00:02:07,480 --> 00:02:08,800
+tomaron el reto
+
+38
+00:02:08,800 --> 00:02:10,540
+y eso ya es
+
+39
+00:02:11,120 --> 00:02:13,280
+ya eso es el beneficio, ya eso es el profit
+
+40
+00:02:14,220 --> 00:02:15,140
+ustedes van a aprender
+
+41
+00:02:15,140 --> 00:02:16,820
+algunas habilidades interesantes
+
+42
+00:02:17,920 --> 00:02:26,020
+en la resolución de problemas, en el trabajo en equipo y en adaptarse a una situación desconocida.
+
+43
+00:02:26,620 --> 00:02:31,680
+¿Ya saben ustedes con el reto? ¿Ya se lo dieron? ¿No, verdad? Entonces, cuando vean,
+
+44
+00:02:31,820 --> 00:02:36,820
+cuando abran el paquete, cuando abran la caja de Pandora, van a tener que adaptarse, van
+
+45
+00:02:36,820 --> 00:02:40,600
+a tener que utilizar todas las habilidades mentales, emocionales y de investigación
+
+46
+00:02:41,140 --> 00:02:46,840
+para buscar la solución en el tiempo que tienen, que es un tiempo bastante corto. Yo les deseo
+
+47
+00:02:47,920 --> 00:02:51,960
+los invito a seguir participando no solamente en temas de context,
+
+48
+00:02:52,100 --> 00:02:55,040
+sino en todas las actividades que la facultad prepara para ustedes.
+
+49
+00:02:55,560 --> 00:02:58,660
+Porque al final, lo que ustedes están haciendo es currículum.
+
+50
+00:02:59,480 --> 00:03:02,720
+Al final, todo esto que ustedes están haciendo no es para tomar en foto a mí,
+
+51
+00:03:03,680 --> 00:03:06,420
+sino para que ustedes tengan que poner en su hoja de vida.
+
+52
+00:03:07,520 --> 00:03:11,760
+Son habilidades blandas, habilidades de investigación, habilidades de tecnología,
+
+53
+00:03:12,400 --> 00:03:17,720
+habilidades de manejo de personal, manejo de estrés, todo eso es lo que tú vas a ver en esas ofertas laborales.
+
+54
+00:03:18,280 --> 00:03:19,520
+y estas acciones
+
+55
+00:03:19,520 --> 00:03:20,920
+los van a ayudar a ellos
+
+56
+00:03:20,920 --> 00:03:22,600
+la mejor de la suerte muchachos
+
+57
+00:03:22,600 --> 00:03:23,640
+es verdad que si
+
+58
+00:03:23,640 --> 00:03:25,140
+y que ganes el mejor
+
+59
+00:03:29,900 --> 00:03:31,080
+justo el tiempo
+
+60
+00:03:34,720 --> 00:03:35,720
+en la ganchaco
+
+61
+00:03:39,000 --> 00:03:39,960
+algo más?
+
+62
+00:03:40,080 --> 00:03:40,560
+¿quista?
+
+63
+00:03:40,840 --> 00:03:41,320
+entonces
+
+64
+00:03:46,960 --> 00:03:48,000
+Mi mouse.
+
+65
+00:03:53,780 --> 00:03:55,500
+Te lo cubro como nuevo.
+
+66
+00:03:57,540 --> 00:03:59,060
+Te lo cubro como nuevo.
+
+67
+00:04:00,740 --> 00:04:01,260
+¿Qué hora es?
+
+68
+00:04:02,440 --> 00:04:03,320
+10.05.
+
+69
+00:04:04,900 --> 00:04:06,740
+Nada más de la bienvenida. No has dicho nada.
+
+70
+00:04:08,260 --> 00:04:09,040
+¿Solo es público?
+
+71
+00:04:09,040 --> 00:04:12,120
+Sí. No dio tiempo para hablar de la casa técnica.
+
+72
+00:04:13,400 --> 00:04:14,220
+¿Y quién ganó?
+
+73
+00:04:14,600 --> 00:04:16,000
+Frank empezó a hacer los tres.
+
+74
+00:04:16,280 --> 00:04:16,900
+Ah, ok.
+
+75
+00:04:19,360 --> 00:04:20,400
+¿Dónde tiene un...
+
+76
+00:04:20,960 --> 00:04:21,560
+Todavía no?
+
+77
+00:04:32,120 --> 00:04:33,280
+Voy a tirar la regleta.
+
+78
+00:04:33,480 --> 00:04:34,460
+Ah, pero no tiene que ser a mi casa.
+
+79
+00:04:35,160 --> 00:04:36,500
+Mi institución tiene como...
+
+80
+00:04:36,500 --> 00:04:37,460
+Tiene dos cabos.
+
+81
+00:04:37,700 --> 00:04:38,040
+Ah, ok.
+
+82
+00:04:49,260 --> 00:04:51,860
+¿Qué equipo de compañeros?
+
+83
+00:04:53,020 --> 00:04:54,200
+Ahí estamos.
+
+84
+00:04:55,340 --> 00:04:56,440
+Chao, chao.
+
+85
+00:04:58,040 --> 00:05:04,900
+¿Y cómo están los otros grupos?
+
+86
+00:05:05,540 --> 00:05:07,740
+Ah, no saben nada.
+
+87
+00:05:07,740 --> 00:05:08,440
+Es individual.
+
+88
+00:05:09,280 --> 00:05:10,260
+Es cool, en verdad.
+
+89
+00:05:10,620 --> 00:05:11,280
+Sí, pero sí.
+
+90
+00:05:11,960 --> 00:05:12,920
+Así me da menos pena.
+
+91
+00:05:13,360 --> 00:05:13,420
+¿Ah?
+
+92
+00:05:13,520 --> 00:05:14,340
+No hay tanta pena.
+
+93
+00:05:14,740 --> 00:05:16,220
+¿Me están grabando con micrófono y todo?
+
+94
+00:05:16,480 --> 00:05:16,900
+Ah, sí.
+
+95
+00:05:17,020 --> 00:05:17,920
+Me hemos metagaming.
+
+96
+00:05:18,080 --> 00:05:18,780
+O sea, tienes que usar micrófono.
+
+97
+00:05:19,140 --> 00:05:19,520
+Exacto.
+
+98
+00:05:19,720 --> 00:05:20,200
+Me hemos metagaming.
+
+99
+00:05:20,600 --> 00:05:22,220
+Dije, oh, eso dijeron los demás.
+
+100
+00:05:23,120 --> 00:05:24,000
+Vamos a cambiarlo nuestro.
+
+101
+00:05:27,160 --> 00:05:27,880
+¿Y eso qué es?
+
+102
+00:05:28,260 --> 00:05:28,400
+¿Ah?
+
+103
+00:05:29,240 --> 00:05:29,620
+¿Qué?
+
+104
+00:05:29,700 --> 00:05:30,060
+Es ok.
+
+105
+00:05:30,340 --> 00:05:32,200
+Ah, un diagrama de la película que se recuse.
+
+106
+00:05:32,400 --> 00:05:36,700
+Ah, yo creo que podemos ir a un hombre de un bote.
+
+107
+00:05:39,900 --> 00:05:41,540
+¿Cómo estás en el token?
+
+108
+00:05:42,240 --> 00:05:43,240
+Recién
+
+109
+00:05:43,240 --> 00:05:45,900
+Recién recetado
+
+110
+00:05:51,040 --> 00:05:53,940
+Voy a presentar más o menos
+
+111
+00:05:53,940 --> 00:05:55,080
+cómo es el reglamento
+
+112
+00:05:55,080 --> 00:05:56,940
+del datatom
+
+113
+00:05:56,940 --> 00:05:59,500
+el challenge
+
+114
+00:05:59,500 --> 00:06:00,400
+que viene
+
+115
+00:06:00,400 --> 00:06:02,000
+se trata sobre
+
+116
+00:06:02,000 --> 00:06:03,240
+diabetes
+
+117
+00:06:03,240 --> 00:06:05,500
+el challenge se llama
+
+118
+00:06:05,500 --> 00:06:08,580
+transformando datos médicos en sus soluciones inteligentes.
+
+119
+00:06:09,020 --> 00:06:12,380
+Bueno, ya saben el nombre del datatón,
+
+120
+00:06:12,660 --> 00:06:13,800
+quiénes los organizan,
+
+121
+00:06:14,340 --> 00:06:16,520
+el horario es hasta las 4,
+
+122
+00:06:17,500 --> 00:06:19,380
+para resolver el respeto.
+
+123
+00:06:20,280 --> 00:06:24,380
+Y ya saben la temática,
+
+124
+00:06:24,480 --> 00:06:28,720
+el dataset en unos minutos se va a estar enviando
+
+125
+00:06:28,720 --> 00:06:31,040
+al WhatsApp, al grupo de WhatsApp creado,
+
+126
+00:06:31,780 --> 00:06:34,300
+que eso está a través de EGEM.
+
+127
+00:06:39,060 --> 00:06:41,940
+ya sabemos que estamos en el 2026
+
+128
+00:06:41,940 --> 00:06:48,500
+tienen permitido cualquier tipo de uso de inteligencia artificial generativa
+
+129
+00:06:48,500 --> 00:06:52,260
+ya sea cloud, codex, open code y demás
+
+130
+00:06:52,260 --> 00:06:56,860
+nada más que tienen que estar sustentados y documentados
+
+131
+00:06:56,860 --> 00:07:00,580
+no pueden decir que no es posible, obvio eso lo creo yo
+
+132
+00:07:00,580 --> 00:07:04,460
+tienen que dar una parte donde diga
+
+133
+00:07:05,040 --> 00:07:09,700
+usé tal inicial más o menos si usaron algún buen prono en específico y demás
+
+134
+00:07:14,940 --> 00:07:21,620
+a las 3 y media van a tener un pequeño break en el que se la van a opinar
+
+135
+00:07:21,620 --> 00:07:22,980
+un copy break
+
+136
+00:07:50,460 --> 00:07:57,920
+El ejemplo es, el sistema de salud necesita una herramienta capaz de analizar automáticamente
+
+137
+00:07:57,920 --> 00:08:03,500
+miles de registros de pacientes y detectar patrones relacionados con la diabetes.
+
+138
+00:08:04,000 --> 00:08:12,800
+Su equipo deberá desarrollar un sistema puntacional que procese los datos, identifique inconsistencias,
+
+139
+00:08:13,040 --> 00:08:18,800
+administrar factores clínicos, generar un sistema de puntuación y clasificar nuevos pacientes
+
+140
+00:08:18,800 --> 00:08:23,940
+utilizando únicamente reglas matemáticas y métodos estadísticos.
+
+141
+00:08:23,940 --> 00:08:28,940
+el equipo que presente la solución más precisa, eficiente y justificable
+
+142
+00:08:28,940 --> 00:08:30,920
+será el gran número de él.
+
+143
+00:08:35,220 --> 00:08:38,020
+¿Quieres decir una palabra al Chérenel del contexto?
+
+144
+00:08:40,240 --> 00:08:46,540
+Bueno, Chérenel, espero que hayan lo mejor de ustedes,
+
+145
+00:08:46,700 --> 00:08:49,300
+que en verdad esto es una oportunidad que ustedes puedan verse
+
+146
+00:08:49,300 --> 00:08:52,340
+y ponerse a prueba en lo que son capaces de hacer,
+
+147
+00:08:52,340 --> 00:08:59,460
+que al final, aunque sea la inteligencia artificial o lo que utilice, al final el pro, la idea que usted tenga, lo que importa, lo que quiera usted dar, entender.
+
+148
+00:09:05,640 --> 00:09:22,160
+Al final, obviamente, ahora hay ganadores, pero para mí, y yo siempre lo voy a decir, todos son ganadores, todos tienen ese esfuerzo, esas ganas de querer probar a sí mismo, competir, entender sus ideas, comprender las soluciones que quieren dar con el problema.
+
+149
+00:09:22,340 --> 00:09:23,320
+es lo importante
+
+150
+00:09:23,320 --> 00:09:25,240
+así que un éxito a todos
+
+151
+00:09:25,240 --> 00:09:27,800
+y que en verdad de lo mejor cada uno
+
+152
+00:09:27,800 --> 00:09:29,520
+y con todo
+
+153
+00:09:29,520 --> 00:09:30,500
+muchas gracias
+
+154
+00:09:58,500 --> 00:09:59,900
+Gracias.
+
