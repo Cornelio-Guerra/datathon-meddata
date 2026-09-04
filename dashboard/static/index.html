@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b3b45" />
+    <meta name="description" content="Tablero de toma de decisiones para analizar indicadores asociados a diabetes." />
+    <title>MedData | Decisiones sobre diabetes</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#principal">Ir al contenido principal</a>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">M</span><span>Med<span>Data</span></span></div>
+      <div class="source-pill" id="source-pill" aria-live="polite">Conectando al dataset…</div>
+    </header>
+
+    <main id="principal" class="shell">
+      <section class="intro" aria-labelledby="title">
+        <p class="eyebrow">PROTOCOLO ANALÍTICO · SALUD POBLACIONAL</p>
+        <h1 id="title">Diabetes: de los datos a decisiones responsables</h1>
+        <p>Un tablero estructurado como protocolo de investigación: plantea el problema, define variables y población, valida un modelo exploratorio y traduce evidencia agregada en acciones de prevención.</p>
+      </section>
+
+      <section class="protocol-grid" aria-label="Estructura metodológica">
+        <details class="protocol-card" open>
+          <summary><span><small>01</small> Problema, pregunta y objetivos</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+          <div class="protocol-body" id="protocol-problem"></div>
+        </details>
+        <details class="protocol-card" open>
+          <summary><span><small>02</small> Diseño, población y criterios</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+          <div class="protocol-body" id="protocol-design"></div>
+        </details>
+        <details class="protocol-card" open>
+          <summary><span><small>03</small> Variables operacionalizadas</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+          <div class="protocol-body protocol-table" id="protocol-variables"></div>
+        </details>
+      </section>
+
+      <section class="filter-panel" aria-label="Filtros del tablero">
+        <div>
+          <p class="eyebrow">SEGMENTACIÓN</p>
+          <h2>Enfoca el análisis</h2>
+        </div>
+        <form id="filters" class="filters">
+          <div id="filter-fields" class="filter-fields"></div>
+          <button type="button" class="reset-button" id="reset-filters">Restablecer</button>
+        </form>
+      </section>
+
+      <section class="kpi-grid" id="kpis" aria-label="Indicadores principales"></section>
+
+      <section class="decision-card" aria-labelledby="decision-title">
+        <div class="decision-heading"><p class="eyebrow">RUTA DE DECISIÓN</p><h2 id="decision-title">De la evidencia a la acción</h2></div>
+        <div class="decision-grid" id="decision-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="content-grid" aria-label="Análisis detallado">
+        <div class="analysis-column">
+          <details class="panel" open id="overview">
+            <summary><span><small>04</small> Panorama y distribución</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+            <div class="panel-body two-col">
+              <div>
+                <p class="section-note">Distribución de resultados en la población filtrada.</p>
+                <div class="bar-chart" id="distribution-chart" aria-label="Distribución del resultado"></div>
+              </div>
+              <div class="insight-box" id="overview-insight"></div>
+            </div>
+          </details>
+
+          <details class="panel" open id="factors">
+            <summary><span><small>05</small> Factores asociados</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+            <div class="panel-body">
+              <p class="section-note">Se ordenan por la tasa más alta observada en sus grupos. Son asociaciones descriptivas, no relaciones causales.</p>
+              <div id="factor-list" class="factor-list"></div>
+            </div>
+          </details>
+
+          <details class="panel" id="segments">
+            <summary><span><small>06</small> Segmentos prioritarios</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+            <div class="panel-body two-col">
+              <div>
+                <h3>Por grupo de edad</h3>
+                <div class="bar-chart compact" id="age-chart"></div>
+              </div>
+              <div>
+                <h3>Por rango de IMC</h3>
+                <div class="bar-chart compact" id="bmi-chart"></div>
+              </div>
+              <div class="table-wrap span-all">
+                <h3>Combinaciones a revisar primero</h3>
+                <table>
+                  <thead><tr><th scope="col">Segmento</th><th scope="col">Registros</th><th scope="col">Tasa observada</th></tr></thead>
+                  <tbody id="segment-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+
+          <details class="panel" open id="validation">
+            <summary><span><small>07</small> Plan de análisis y validación del modelo</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+            <div class="panel-body model-layout">
+              <div class="model-lead">
+                <p class="section-note" id="model-note">Preparando la validación del modelo…</p>
+                <div class="model-context" id="model-context"></div>
+              </div>
+              <div class="table-wrap span-all">
+                <h3>Comparación en conjunto de prueba</h3>
+                <table>
+                  <thead><tr><th scope="col">Modelo</th><th scope="col">Accuracy</th><th scope="col">Precisión</th><th scope="col">Recall</th><th scope="col">F1</th><th scope="col">ROC-AUC</th></tr></thead>
+                  <tbody id="model-table"></tbody>
+                </table>
+              </div>
+              <div>
+                <h3>Variables con mayor peso en el modelo seleccionado</h3>
+                <div class="bar-chart compact" id="feature-chart"></div>
+              </div>
+              <div>
+                <h3>Estratos de probabilidad en prueba</h3>
+                <div class="bar-chart compact" id="risk-chart"></div>
+                <p class="micro-note">Probabilidad estimada y resultado observado se muestran solo de forma agregada.</p>
+              </div>
+            </div>
+          </details>
+
+          <details class="panel" id="quality">
+            <summary><span><small>08</small> Calidad, elegibilidad y uso ético</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+            <div class="panel-body quality-layout">
+              <div class="quality-stat"><strong id="quality-rows">—</strong><span>registros disponibles</span></div>
+              <div class="quality-stat"><strong id="quality-cols">—</strong><span>variables analizadas</span></div>
+              <div class="quality-stat"><strong>0</strong><span>campos personales identificables</span></div>
+              <div class="eligibility-card span-all" id="eligibility-card"></div>
+              <div class="table-wrap span-all">
+                <table>
+                  <thead><tr><th scope="col">Campo</th><th scope="col">Registros</th><th scope="col">Porcentaje</th><th scope="col">Lectura</th></tr></thead>
+                  <tbody id="quality-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <aside class="method-column" aria-label="Metodología y alcance">
+          <details class="method-card" open>
+            <summary>Ruta metodológica <span class="chevron" aria-hidden="true">⌄</span></summary>
+            <ol id="method-list"></ol>
+          </details>
+          <details class="method-card" open>
+            <summary>Cómo interpretar <span class="chevron" aria-hidden="true">⌄</span></summary>
+            <ul class="interpret-list">
+              <li>Las tasas son proporciones dentro del segmento seleccionado.</li>
+              <li>Un mayor valor no demuestra que un factor cause diabetes.</li>
+              <li>Valida los resultados con criterio clínico, contexto territorial y tamaño muestral.</li>
+            </ul>
+          </details>
+          <details class="method-card">
+            <summary>Uso recomendado <span class="chevron" aria-hidden="true">⌄</span></summary>
+            <p>Úsalo para orientar campañas, revisar brechas y definir qué medir después. No sustituye una evaluación médica individual.</p>
+          </details>
+        </aside>
+      </section>
+    </main>
+
+    <footer>MedData Challenge · Análisis exploratorio y apoyo a decisiones · <span id="footer-source">—</span></footer>
+    <template id="loading-template"><div class="loading">Actualizando indicadores…</div></template>
+    <script src="app.js" defer></script>
+  </body>
+</html>
