@@ -1,0 +1,29 @@
+factor,nombre,nivel,n,prev_%,OR,ln_OR,puntos
+f_bmi,IMC,0.0,75837,7.3,1.0,0.0,0
+f_bmi,IMC,1.0,79924,14.3,2.124,0.7532,1
+f_bmi,IMC,2.0,41621,22.4,3.685,1.3044,2
+f_bmi,IMC,3.0,26982,32.1,6.012,1.7937,2
+f_edad,Edad,0.0,34359,3.3,1.0,0.0,0
+f_edad,Edad,1.0,53351,10.9,3.542,1.2648,2
+f_edad,Edad,2.0,55571,17.7,6.256,1.8336,2
+f_edad,Edad,3.0,49808,23.2,8.748,2.1688,3
+f_edad,Edad,4.0,31275,21.0,7.723,2.0442,3
+f_salud,Salud autopercibida,0.0,34481,3.3,1.0,0.0,0
+f_salud,Salud autopercibida,1.0,76106,8.2,2.646,0.9729,1
+f_salud,Salud autopercibida,2.0,71786,18.5,6.695,1.9014,3
+f_salud,Salud autopercibida,3.0,30349,32.0,13.892,2.6313,3
+f_salud,Salud autopercibida,4.0,11642,38.9,18.762,2.9318,4
+HighBP,Presion alta,0.0,123238,7.0,1.0,0.0,0
+HighBP,Presion alta,1.0,101126,26.0,4.642,1.5352,2
+HighChol,Colesterol alto,0.0,126047,9.1,1.0,0.0,0
+HighChol,Colesterol alto,1.0,98317,23.8,3.101,1.1318,2
+DiffWalk,Dificultad para caminar,0.0,183290,12.0,1.0,0.0,0
+DiffWalk,Dificultad para caminar,1.0,41074,31.6,3.402,1.2243,2
+HeartDiseaseorAttack,Enfermedad cardiaca,0.0,201381,13.5,1.0,0.0,0
+HeartDiseaseorAttack,Enfermedad cardiaca,1.0,22983,34.0,3.317,1.1989,2
+Stroke,Derrame previo,0.0,214376,14.8,1.0,0.0,0
+Stroke,Derrame previo,1.0,9988,32.6,2.789,1.0256,1
+PhysActivity,Actividad fisica,0.0,59488,21.7,1.0,0.0,0
+PhysActivity,Actividad fisica,1.0,164876,13.3,0.554,-0.5901,-1
+HvyAlcoholConsump,Consumo alto de alcohol,0.0,210652,16.2,1.0,0.0,0
+HvyAlcoholConsump,Consumo alto de alcohol,1.0,13712,6.1,0.334,-1.0964,-1
