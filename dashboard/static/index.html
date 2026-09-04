@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0b3b45" />
     <meta name="description" content="Tablero de toma de decisiones para analizar indicadores asociados a diabetes." />
     <title>MedData | Decisiones sobre diabetes</title>
-    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="styles.css?v=6" />
   </head>
   <body>
     <a class="skip-link" href="#principal">Ir al contenido principal</a>
@@ -22,6 +22,12 @@
         <p>MedData transforma indicadores poblacionales en una brújula de riesgo para priorizar el tamizaje de diabetes y llevar la prevención donde más se necesita, sin sustituir el criterio clínico.</p>
       </section>
 
+      <nav class="dashboard-tabs" role="tablist" aria-label="Vistas del dashboard">
+        <button class="dashboard-tab is-active" id="tab-analysis" type="button" role="tab" aria-selected="true" aria-controls="analysis-view" data-tab-target="analysis-view">Análisis y decisión</button>
+        <button class="dashboard-tab" id="tab-charts" type="button" role="tab" aria-selected="false" aria-controls="charts-view" data-tab-target="charts-view" tabindex="-1">Gráficos clave</button>
+      </nav>
+
+      <div class="dashboard-view" id="analysis-view" role="tabpanel" aria-labelledby="tab-analysis">
       <section class="protocol-grid" aria-label="Estructura metodológica">
         <details class="protocol-card" open>
           <summary><span><small>01</small> Problema, pregunta y objetivos</span><span class="chevron" aria-hidden="true">⌄</span></summary>
@@ -191,10 +197,66 @@
           </details>
         </aside>
       </section>
+      </div>
+
+      <section class="dashboard-view charts-view" id="charts-view" role="tabpanel" aria-labelledby="tab-charts" hidden>
+        <header class="charts-heading">
+          <div>
+            <p class="eyebrow">LECTURA VISUAL · HALLAZGOS CLAVE</p>
+            <h2>Lo que los datos dicen de un vistazo</h2>
+          </div>
+          <p>Una vista enfocada en las relaciones que sostienen la decisión de tamizaje. Las cifras del score corresponden a la población depurada; edad e IMC responden a los filtros activos.</p>
+        </header>
+
+        <div class="chart-suite-grid">
+          <article class="panel chart-card chart-card-featured">
+            <div class="chart-card-heading">
+              <div><span class="chart-index">01</span><h3>Prevalencia por nivel de riesgo</h3></div>
+              <p>La capacidad del score para separar perfiles de menor y mayor riesgo.</p>
+            </div>
+            <div class="chart-card-body chart-feature-layout">
+              <div class="bar-chart chart-large" id="risk-prevalence-chart" aria-label="Prevalencia de diabetes por nivel de riesgo"></div>
+              <aside class="chart-insight" id="risk-prevalence-insight" aria-live="polite"></aside>
+            </div>
+          </article>
+
+          <article class="panel chart-card">
+            <div class="chart-card-heading">
+              <div><span class="chart-index">02</span><h3>Rendimiento del score</h3></div>
+              <p>Sensibilidad, especificidad y valores predictivos con corte de derivación ≥ 7.</p>
+            </div>
+            <div class="bar-chart chart-large" id="score-performance-chart" aria-label="Métricas de rendimiento del score"></div>
+          </article>
+
+          <article class="panel chart-card">
+            <div class="chart-card-heading">
+              <div><span class="chart-index">03</span><h3>AUC: score frente a ML</h3></div>
+              <p>Capacidad de discriminación del enfoque interpretable y los modelos comparativos.</p>
+            </div>
+            <div class="bar-chart chart-large" id="auc-comparison-chart" aria-label="Comparación del AUC por modelo"></div>
+          </article>
+
+          <article class="panel chart-card">
+            <div class="chart-card-heading">
+              <div><span class="chart-index">04</span><h3>Diabetes por grupo de edad</h3></div>
+              <p>Los grupos se ordenan por la mayor tasa observada en la selección actual.</p>
+            </div>
+            <div class="bar-chart" id="charts-age-chart" aria-label="Prevalencia de diabetes por grupo de edad"></div>
+          </article>
+
+          <article class="panel chart-card">
+            <div class="chart-card-heading">
+              <div><span class="chart-index">05</span><h3>Diabetes por rango de IMC</h3></div>
+              <p>Comparación de prevalencia entre perfiles de peso en la selección actual.</p>
+            </div>
+            <div class="bar-chart" id="charts-bmi-chart" aria-label="Prevalencia de diabetes por rango de IMC"></div>
+          </article>
+        </div>
+      </section>
     </main>
 
     <footer>MedData Challenge · Análisis exploratorio y apoyo a decisiones · <span id="footer-source">—</span></footer>
     <template id="loading-template"><div class="loading">Actualizando indicadores…</div></template>
-    <script src="app.js?v=5" defer></script>
+    <script src="app.js?v=6" defer></script>
   </body>
 </html>
