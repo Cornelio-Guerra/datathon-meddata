@@ -1,0 +1,1385 @@
+{
+ "meta": {
+  "description": "Respuestas precalculadas de GET /api/dashboard (sin filtros) y GET /api/score/summary del servidor local dashboard/app.py.",
+  "generated_at": "2026-10-17T08:41:33+00:00",
+  "generator": "dashboard/generar_snapshot.py",
+  "filters": {},
+  "population_n": 228976,
+  "source_file": "diabetes_012_health_indicators_BRFSS2015.csv",
+  "source_sha256": "a971809d0786d2d7d7f6070f83dfe8af9d860ea33a79e0e2701c8a49f78f9861",
+  "score_engine": "src/score_diabetes.py",
+  "score_engine_sha256": "450b76f7a9c278e4db97b3f57036f9c5f0681d094599d5af08f4ba1ccafec403"
+ },
+ "dashboard": {
+  "dataset": {
+   "name": "BRFSS 2015 — Indicadores de Salud y Diabetes",
+   "source": "diabetes_012_health_indicators_BRFSS2015.csv",
+   "kind": "brfss",
+   "target": "diabetes confirmada (clase 2)"
+  },
+  "filters": [
+   {
+    "id": "age",
+    "label": "Grupo de edad",
+    "options": [
+     "Todos",
+     "18–24",
+     "25–29",
+     "30–34",
+     "35–39",
+     "40–44",
+     "45–49",
+     "50–54",
+     "55–59",
+     "60–64",
+     "65–69",
+     "70–74",
+     "75–79",
+     "80 o más"
+    ]
+   },
+   {
+    "id": "bmi",
+    "label": "IMC",
+    "options": [
+     "Todos",
+     "25–30 (Sobrepeso)",
+     "30–35 (Obesidad I)",
+     "< 25 (Normal)",
+     "> 35 (Obesidad II/III)"
+    ]
+   },
+   {
+    "id": "highBP",
+    "label": "Presión arterial alta",
+    "options": [
+     "Todos",
+     "No",
+     "Sí"
+    ]
+   },
+   {
+    "id": "highChol",
+    "label": "Colesterol alto",
+    "options": [
+     "Todos",
+     "No",
+     "Sí"
+    ]
+   },
+   {
+    "id": "genHlth",
+    "label": "Salud general",
+    "options": [
+     "Todos",
+     "Buena",
+     "Excelente",
+     "Mala",
+     "Muy buena",
+     "Regular"
+    ]
+   },
+   {
+    "id": "activity",
+    "label": "Actividad física",
+    "options": [
+     "Todos",
+     "No",
+     "Sí"
+    ]
+   }
+  ],
+  "selection": {
+   "n": 228976,
+   "positive": 34926,
+   "prevalence": 15.3
+  },
+  "kpis": [
+   {
+    "label": "Registros analizados",
+    "value": "228.976",
+    "context": "de 228.976 en BRFSS 2015"
+   },
+   {
+    "label": "Prevalencia de diabetes",
+    "value": "15.3%",
+    "context": "34.926 casos confirmados"
+   },
+   {
+    "label": "Sensibilidad del Score",
+    "value": "85.5%",
+    "context": "Detecta 29.867 de 34.926 diabéticos (corte ≥7)"
+   },
+   {
+    "label": "AUC del Score",
+    "value": "0.798",
+    "context": "Discriminación Mann-Whitney sin sobreajuste"
+   },
+   {
+    "label": "Rango de Score",
+    "value": "-2 a 18",
+    "context": "Promedio poblacional: 6.53"
+   },
+   {
+    "label": "Población a derivar",
+    "value": "48.3%",
+    "context": "Score ≥ 7 (Riesgo Moderado a Muy Alto)"
+   }
+  ],
+  "distribution": [
+   {
+    "label": "Sin diabetes",
+    "count": 189438,
+    "rate": 82.7
+   },
+   {
+    "label": "Prediabetes",
+    "count": 4612,
+    "rate": 2.0
+   },
+   {
+    "label": "Diabetes confirmada",
+    "count": 34926,
+    "rate": 15.3
+   }
+  ],
+  "factors": [
+   {
+    "factor": "Salud general percibida",
+    "field": "GenHlth",
+    "group": "Mala",
+    "rate": 37.8,
+    "n": 11992,
+    "delta": 22.5,
+    "groups": [
+     {
+      "label": "Mala",
+      "n": 11992,
+      "positive": 4527,
+      "rate": 37.8
+     },
+     {
+      "label": "Regular",
+      "n": 31368,
+      "positive": 9719,
+      "rate": 31.0
+     },
+     {
+      "label": "Buena",
+      "n": 73511,
+      "positive": 13283,
+      "rate": 18.1
+     },
+     {
+      "label": "Muy buena",
+      "n": 77311,
+      "positive": 6266,
+      "rate": 8.1
+     },
+     {
+      "label": "Excelente",
+      "n": 34794,
+      "positive": 1131,
+      "rate": 3.3
+     }
+    ]
+   },
+   {
+    "factor": "Enfermedad cardíaca",
+    "field": "HeartDiseaseorAttack",
+    "group": "Sí",
+    "rate": 33.1,
+    "n": 23645,
+    "delta": 17.8,
+    "groups": [
+     {
+      "label": "Sí",
+      "n": 23645,
+      "positive": 7821,
+      "rate": 33.1
+     },
+     {
+      "label": "No",
+      "n": 205331,
+      "positive": 27105,
+      "rate": 13.2
+     }
+    ]
+   },
+   {
+    "factor": "Antecedente de ACV",
+    "field": "Stroke",
+    "group": "Sí",
+    "rate": 31.7,
+    "n": 10252,
+    "delta": 16.4,
+    "groups": [
+     {
+      "label": "Sí",
+      "n": 10252,
+      "positive": 3255,
+      "rate": 31.7
+     },
+     {
+      "label": "No",
+      "n": 218724,
+      "positive": 31671,
+      "rate": 14.5
+     }
+    ]
+   },
+   {
+    "factor": "IMC",
+    "field": "BMI",
+    "group": "> 35 (Obesidad II/III)",
+    "rate": 31.0,
+    "n": 27882,
+    "delta": 15.7,
+    "groups": [
+     {
+      "label": "> 35 (Obesidad II/III)",
+      "n": 27882,
+      "positive": 8650,
+      "rate": 31.0
+     },
+     {
+      "label": "30–35 (Obesidad I)",
+      "n": 42750,
+      "positive": 9338,
+      "rate": 21.8
+     },
+     {
+      "label": "25–30 (Sobrepeso)",
+      "n": 81555,
+      "positive": 11419,
+      "rate": 14.0
+     },
+     {
+      "label": "< 25 (Normal)",
+      "n": 76789,
+      "positive": 5519,
+      "rate": 7.2
+     }
+    ]
+   },
+   {
+    "factor": "Dificultad para caminar",
+    "field": "DiffWalk",
+    "group": "Sí",
+    "rate": 30.7,
+    "n": 42351,
+    "delta": 15.4,
+    "groups": [
+     {
+      "label": "Sí",
+      "n": 42351,
+      "positive": 12989,
+      "rate": 30.7
+     },
+     {
+      "label": "No",
+      "n": 186625,
+      "positive": 21937,
+      "rate": 11.8
+     }
+    ]
+   },
+   {
+    "factor": "Presión arterial alta",
+    "field": "HighBP",
+    "group": "Sí",
+    "rate": 25.2,
+    "n": 104026,
+    "delta": 9.9,
+    "groups": [
+     {
+      "label": "Sí",
+      "n": 104026,
+      "positive": 26266,
+      "rate": 25.2
+     },
+     {
+      "label": "No",
+      "n": 124950,
+      "positive": 8660,
+      "rate": 6.9
+     }
+    ]
+   },
+   {
+    "factor": "Colesterol alto",
+    "field": "HighChol",
+    "group": "Sí",
+    "rate": 23.1,
+    "n": 101182,
+    "delta": 7.8,
+    "groups": [
+     {
+      "label": "Sí",
+      "n": 101182,
+      "positive": 23395,
+      "rate": 23.1
+     },
+     {
+      "label": "No",
+      "n": 127794,
+      "positive": 11531,
+      "rate": 9.0
+     }
+    ]
+   },
+   {
+    "factor": "Grupo de edad",
+    "field": "Age",
+    "group": "70–74",
+    "rate": 23.1,
+    "n": 22014,
+    "delta": 7.8,
+    "groups": [
+     {
+      "label": "70–74",
+      "n": 22014,
+      "positive": 5085,
+      "rate": 23.1
+     },
+     {
+      "label": "65–69",
+      "n": 29090,
+      "positive": 6455,
+      "rate": 22.2
+     },
+     {
+      "label": "75–79",
+      "n": 15372,
+      "positive": 3379,
+      "rate": 22.0
+     },
+     {
+      "label": "60–64",
+      "n": 29638,
+      "positive": 5653,
+      "rate": 19.1
+     },
+     {
+      "label": "80 o más",
+      "n": 16799,
+      "positive": 3197,
+      "rate": 19.0
+     }
+    ]
+   }
+  ],
+  "age_rates": [
+   {
+    "label": "70–74",
+    "n": 22014,
+    "positive": 5085,
+    "rate": 23.1
+   },
+   {
+    "label": "65–69",
+    "n": 29090,
+    "positive": 6455,
+    "rate": 22.2
+   },
+   {
+    "label": "75–79",
+    "n": 15372,
+    "positive": 3379,
+    "rate": 22.0
+   },
+   {
+    "label": "60–64",
+    "n": 29638,
+    "positive": 5653,
+    "rate": 19.1
+   },
+   {
+    "label": "80 o más",
+    "n": 16799,
+    "positive": 3197,
+    "rate": 19.0
+   },
+   {
+    "label": "55–59",
+    "n": 27178,
+    "positive": 4206,
+    "rate": 15.5
+   },
+   {
+    "label": "50–54",
+    "n": 23041,
+    "positive": 3044,
+    "rate": 13.2
+   },
+   {
+    "label": "45–49",
+    "n": 17215,
+    "positive": 1725,
+    "rate": 10.0
+   },
+   {
+    "label": "40–44",
+    "n": 13982,
+    "positive": 1037,
+    "rate": 7.4
+   },
+   {
+    "label": "35–39",
+    "n": 12186,
+    "positive": 619,
+    "rate": 5.1
+   },
+   {
+    "label": "30–34",
+    "n": 9943,
+    "positive": 312,
+    "rate": 3.1
+   },
+   {
+    "label": "25–29",
+    "n": 7029,
+    "positive": 136,
+    "rate": 1.9
+   },
+   {
+    "label": "18–24",
+    "n": 5489,
+    "positive": 78,
+    "rate": 1.4
+   }
+  ],
+  "bmi_rates": [
+   {
+    "label": "> 35 (Obesidad II/III)",
+    "n": 27882,
+    "positive": 8650,
+    "rate": 31.0
+   },
+   {
+    "label": "30–35 (Obesidad I)",
+    "n": 42750,
+    "positive": 9338,
+    "rate": 21.8
+   },
+   {
+    "label": "25–30 (Sobrepeso)",
+    "n": 81555,
+    "positive": 11419,
+    "rate": 14.0
+   },
+   {
+    "label": "< 25 (Normal)",
+    "n": 76789,
+    "positive": 5519,
+    "rate": 7.2
+   }
+  ],
+  "score": {
+   "status": "ok",
+   "method": "Sullivan et al. (Framework Framingham basado en Odds Ratios)",
+   "population_n": 224364,
+   "score_min": -2,
+   "score_max": 18,
+   "score_mean": 6.53,
+   "derivation_cutoff": 7,
+   "cutoffs": [
+    6,
+    9,
+    12
+   ],
+   "derived_patients": 108451,
+   "derived_pct": 48.3,
+   "metrics": {
+    "sensitivity": 85.5,
+    "specificity": 58.5,
+    "ppv": 27.5,
+    "npv": 95.6,
+    "auc": 0.7976,
+    "detected_diabetics": 29867,
+    "total_diabetics": 34926,
+    "false_positives": 78584,
+    "true_negatives": 110854
+   },
+   "risk_distribution": [
+    {
+     "level": "Bajo",
+     "range": "≤6 pts",
+     "n": 115913,
+     "cases": 5059,
+     "prevalence": 4.4,
+     "population_pct": 51.7
+    },
+    {
+     "level": "Moderado",
+     "range": "7–9 pts",
+     "n": 56450,
+     "cases": 10103,
+     "prevalence": 17.9,
+     "population_pct": 25.2
+    },
+    {
+     "level": "Alto",
+     "range": "10–12 pts",
+     "n": 36137,
+     "cases": 11965,
+     "prevalence": 33.1,
+     "population_pct": 16.1
+    },
+    {
+     "level": "Muy alto",
+     "range": "≥13 pts",
+     "n": 15864,
+     "cases": 7799,
+     "prevalence": 49.2,
+     "population_pct": 7.1
+    }
+   ],
+   "score_table": [
+    {
+     "factor": "f_bmi",
+     "nombre": "IMC",
+     "nivel": 0.0,
+     "n": 75837,
+     "prev_pct": 7.3,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "f_bmi",
+     "nombre": "IMC",
+     "nivel": 1.0,
+     "n": 79924,
+     "prev_pct": 14.3,
+     "or": 2.124,
+     "puntos": 1
+    },
+    {
+     "factor": "f_bmi",
+     "nombre": "IMC",
+     "nivel": 2.0,
+     "n": 41621,
+     "prev_pct": 22.4,
+     "or": 3.685,
+     "puntos": 2
+    },
+    {
+     "factor": "f_bmi",
+     "nombre": "IMC",
+     "nivel": 3.0,
+     "n": 26982,
+     "prev_pct": 32.1,
+     "or": 6.012,
+     "puntos": 2
+    },
+    {
+     "factor": "f_edad",
+     "nombre": "Edad",
+     "nivel": 0.0,
+     "n": 34359,
+     "prev_pct": 3.3,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "f_edad",
+     "nombre": "Edad",
+     "nivel": 1.0,
+     "n": 53351,
+     "prev_pct": 10.9,
+     "or": 3.542,
+     "puntos": 2
+    },
+    {
+     "factor": "f_edad",
+     "nombre": "Edad",
+     "nivel": 2.0,
+     "n": 55571,
+     "prev_pct": 17.7,
+     "or": 6.256,
+     "puntos": 2
+    },
+    {
+     "factor": "f_edad",
+     "nombre": "Edad",
+     "nivel": 3.0,
+     "n": 49808,
+     "prev_pct": 23.2,
+     "or": 8.748,
+     "puntos": 3
+    },
+    {
+     "factor": "f_edad",
+     "nombre": "Edad",
+     "nivel": 4.0,
+     "n": 31275,
+     "prev_pct": 21.0,
+     "or": 7.723,
+     "puntos": 3
+    },
+    {
+     "factor": "f_salud",
+     "nombre": "Salud autopercibida",
+     "nivel": 0.0,
+     "n": 34481,
+     "prev_pct": 3.3,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "f_salud",
+     "nombre": "Salud autopercibida",
+     "nivel": 1.0,
+     "n": 76106,
+     "prev_pct": 8.2,
+     "or": 2.646,
+     "puntos": 1
+    },
+    {
+     "factor": "f_salud",
+     "nombre": "Salud autopercibida",
+     "nivel": 2.0,
+     "n": 71786,
+     "prev_pct": 18.5,
+     "or": 6.695,
+     "puntos": 3
+    },
+    {
+     "factor": "f_salud",
+     "nombre": "Salud autopercibida",
+     "nivel": 3.0,
+     "n": 30349,
+     "prev_pct": 32.0,
+     "or": 13.892,
+     "puntos": 3
+    },
+    {
+     "factor": "f_salud",
+     "nombre": "Salud autopercibida",
+     "nivel": 4.0,
+     "n": 11642,
+     "prev_pct": 38.9,
+     "or": 18.762,
+     "puntos": 4
+    },
+    {
+     "factor": "HighBP",
+     "nombre": "Presion alta",
+     "nivel": 0.0,
+     "n": 123238,
+     "prev_pct": 7.0,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "HighBP",
+     "nombre": "Presion alta",
+     "nivel": 1.0,
+     "n": 101126,
+     "prev_pct": 26.0,
+     "or": 4.642,
+     "puntos": 2
+    },
+    {
+     "factor": "HighChol",
+     "nombre": "Colesterol alto",
+     "nivel": 0.0,
+     "n": 126047,
+     "prev_pct": 9.1,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "HighChol",
+     "nombre": "Colesterol alto",
+     "nivel": 1.0,
+     "n": 98317,
+     "prev_pct": 23.8,
+     "or": 3.101,
+     "puntos": 2
+    },
+    {
+     "factor": "DiffWalk",
+     "nombre": "Dificultad para caminar",
+     "nivel": 0.0,
+     "n": 183290,
+     "prev_pct": 12.0,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "DiffWalk",
+     "nombre": "Dificultad para caminar",
+     "nivel": 1.0,
+     "n": 41074,
+     "prev_pct": 31.6,
+     "or": 3.402,
+     "puntos": 2
+    },
+    {
+     "factor": "HeartDiseaseorAttack",
+     "nombre": "Enfermedad cardiaca",
+     "nivel": 0.0,
+     "n": 201381,
+     "prev_pct": 13.5,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "HeartDiseaseorAttack",
+     "nombre": "Enfermedad cardiaca",
+     "nivel": 1.0,
+     "n": 22983,
+     "prev_pct": 34.0,
+     "or": 3.317,
+     "puntos": 2
+    },
+    {
+     "factor": "Stroke",
+     "nombre": "Derrame previo",
+     "nivel": 0.0,
+     "n": 214376,
+     "prev_pct": 14.8,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "Stroke",
+     "nombre": "Derrame previo",
+     "nivel": 1.0,
+     "n": 9988,
+     "prev_pct": 32.6,
+     "or": 2.789,
+     "puntos": 1
+    },
+    {
+     "factor": "PhysActivity",
+     "nombre": "Actividad fisica",
+     "nivel": 0.0,
+     "n": 59488,
+     "prev_pct": 21.7,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "PhysActivity",
+     "nombre": "Actividad fisica",
+     "nivel": 1.0,
+     "n": 164876,
+     "prev_pct": 13.3,
+     "or": 0.554,
+     "puntos": -1
+    },
+    {
+     "factor": "HvyAlcoholConsump",
+     "nombre": "Consumo alto de alcohol",
+     "nivel": 0.0,
+     "n": 210652,
+     "prev_pct": 16.2,
+     "or": 1.0,
+     "puntos": 0
+    },
+    {
+     "factor": "HvyAlcoholConsump",
+     "nombre": "Consumo alto de alcohol",
+     "nivel": 1.0,
+     "n": 13712,
+     "prev_pct": 6.1,
+     "or": 0.334,
+     "puntos": -1
+    }
+   ],
+   "calibration_constant_b": 0.7532,
+   "disclaimer": "Este resultado es una estimación estadística basada en indicadores poblacionales y NO constituye un diagnóstico médico. Consulte siempre a un profesional de la salud."
+  },
+  "model_comparison": [
+   {
+    "approach": "Score Estadístico (Sullivan / Framingham)",
+    "type": "Estadístico Interpretable",
+    "sensitivity": "85.5%",
+    "specificity": "58.5%",
+    "ppv": "27.5%",
+    "npv": "95.6%",
+    "auc": "0.798",
+    "interpretability": "Máxima (reglas aditivas directas y auditables)",
+    "use_case": "Tamizaje en atención primaria sin infraestructura digital compleja"
+   },
+   {
+    "approach": "Regresión Logística",
+    "type": "Machine Learning",
+    "sensitivity": "75.5%",
+    "specificity": "—",
+    "ppv": "32.0%",
+    "npv": "—",
+    "auc": "0.810",
+    "interpretability": "Moderada a baja (coeficientes / ensamble de árboles)",
+    "use_case": "Análisis multivariado y benchmarking técnico"
+   },
+   {
+    "approach": "Random Forest",
+    "type": "Machine Learning",
+    "sensitivity": "73.8%",
+    "specificity": "—",
+    "ppv": "32.9%",
+    "npv": "—",
+    "auc": "0.812",
+    "interpretability": "Moderada a baja (coeficientes / ensamble de árboles)",
+    "use_case": "Análisis multivariado y benchmarking técnico"
+   }
+  ],
+  "model": {
+   "status": "ok",
+   "train_n": 183180,
+   "test_n": 45796,
+   "positive_rate": 15.3,
+   "models": [
+    {
+     "name": "Regresión Logística",
+     "accuracy": 0.718,
+     "precision": 0.32,
+     "recall": 0.755,
+     "f1": 0.45,
+     "auc": 0.81
+    },
+    {
+     "name": "Random Forest",
+     "accuracy": 0.73,
+     "precision": 0.329,
+     "recall": 0.738,
+     "f1": 0.455,
+     "auc": 0.812
+    }
+   ],
+   "selected": "Random Forest",
+   "features": [
+    {
+     "label": "Salud general percibida",
+     "value": 0.1952
+    },
+    {
+     "label": "Presión arterial alta",
+     "value": 0.1936
+    },
+    {
+     "label": "IMC",
+     "value": 0.1457
+    },
+    {
+     "label": "Grupo de edad",
+     "value": 0.1158
+    },
+    {
+     "label": "Colesterol alto",
+     "value": 0.0928
+    },
+    {
+     "label": "Dificultad para caminar",
+     "value": 0.0441
+    },
+    {
+     "label": "Ingreso",
+     "value": 0.0338
+    },
+    {
+     "label": "Días de salud física no buena",
+     "value": 0.0334
+    }
+   ],
+   "risk_bands": [
+    {
+     "label": "Bajo (<25%)",
+     "n": 16633,
+     "predicted": 12.5,
+     "observed": 2.2
+    },
+    {
+     "label": "Moderado (25–49%)",
+     "n": 13490,
+     "predicted": 37.2,
+     "observed": 10.9
+    },
+    {
+     "label": "Elevado (50–74%)",
+     "n": 11585,
+     "predicted": 62.0,
+     "observed": 26.6
+    },
+    {
+     "label": "Alto (≥75%)",
+     "n": 4088,
+     "predicted": 80.8,
+     "observed": 50.6
+    }
+   ],
+   "note": "Evaluación en conjunto de prueba separado (20%). Enfoque comparativo frente al score estadístico."
+  },
+  "quality": {
+   "missing": [
+    {
+     "field": "Duplicados",
+     "count": 23899,
+     "rate": 9.4,
+     "note": "Registros exactamente duplicados en todas las columnas."
+    },
+    {
+     "field": "BMI (Inverosímil)",
+     "count": 805,
+     "rate": 0.3,
+     "note": "Valores < 12 o > 60 fisiológicamente improbables."
+    },
+    {
+     "field": "Prediabetes (Clase 1)",
+     "count": 4612,
+     "rate": 1.8,
+     "note": "Excluidos por diseño para mejorar la separación binaria."
+    }
+   ],
+   "rows": 228976,
+   "columns": 22,
+   "has_pii": false
+  },
+  "protocol": {
+   "title": "Protocolo analítico de diabetes y apoyo a decisiones",
+   "question": "¿Qué capacidad discriminatoria tienen los factores clínicos y de estilo de vida para identificar diabetes confirmada mediante un sistema de puntuación transparente frente a modelos de ML?",
+   "objective": "Desarrollar y validar un score estadístico interpretable (Sullivan/Framingham) y compararlo con modelos supervisados para priorizar tamizaje poblacional de diabetes.",
+   "objectives": [
+    "Caracterizar la prevalencia de diabetes según indicadores sociodemográficos y clínicos en BRFSS 2015.",
+    "Construir un score de puntuación entero basado en odds ratios ajustados sin cajas negras.",
+    "Estratificar a la población en niveles de riesgo clínico (Bajo, Moderado, Alto, Muy alto) con punto de corte de derivación.",
+    "Validar la sensibilidad (85.5%), especificidad (58.5%) y AUC (0.798) del score y contrastarlo con Regresión Logística y Random Forest.",
+    "Proveer una herramienta clínica interactiva que asigne puntos y oriente la derivación oportuna."
+   ],
+   "design": "Observacional, analítico, transversal de base poblacional con datos secundarios del BRFSS 2015.",
+   "unit": "Cada registro corresponde a un adulto encuestado; datos anonimizados sin identificación individual.",
+   "eligibility": {
+    "included": "Adultos con registro completo de Diabetes_012 y factores de riesgo clave.",
+    "excluded": "Duplicados exactos (23,899) y registros con IMC fisiológicamente inverosímil (<12 o >60, n=805). En el ajuste del score se excluye prediabetes (clase 1, 1.8%).",
+    "all": 253680,
+    "valid_target": 228976,
+    "usable": 228976
+   },
+   "variables": [
+    {
+     "name": "Diabetes confirmada",
+     "field": "Diabetes_012",
+     "role": "Desenlace",
+     "type": "Cualitativa policotómica",
+     "definition": "0=Sin diabetes, 1=Prediabetes, 2=Diabetes confirmada. Para el score se excluye prediabetes."
+    },
+    {
+     "name": "IMC",
+     "field": "BMI",
+     "role": "Predictor",
+     "type": "Cuantitativa continua",
+     "definition": "Índice de masa corporal (discretizado ≤25, 25-30, 30-35, >35)."
+    },
+    {
+     "name": "Edad",
+     "field": "Age",
+     "role": "Predictor",
+     "type": "Ordinal (13 categorías)",
+     "definition": "Categorías etarias BRFSS 1-13 (18-24 hasta ≥80)."
+    },
+    {
+     "name": "Salud general percibida",
+     "field": "GenHlth",
+     "role": "Predictor",
+     "type": "Ordinal (1-5)",
+     "definition": "1=Excelente a 5=Mala."
+    },
+    {
+     "name": "Presión arterial alta",
+     "field": "HighBP",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Diagnosticado hipertenso, 0=No."
+    },
+    {
+     "name": "Colesterol alto",
+     "field": "HighChol",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Diagnosticado colesterol alto, 0=No."
+    },
+    {
+     "name": "Dificultad para caminar",
+     "field": "DiffWalk",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Dificultad seria para caminar o subir escaleras, 0=No."
+    },
+    {
+     "name": "Enfermedad cardíaca",
+     "field": "HeartDiseaseorAttack",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Enfermedad coronaria o infarto, 0=No."
+    },
+    {
+     "name": "Derrame previo",
+     "field": "Stroke",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Accidente cerebrovascular previo, 0=No."
+    },
+    {
+     "name": "Actividad física",
+     "field": "PhysActivity",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Actividad física en los últimos 30 días, 0=No."
+    },
+    {
+     "name": "Consumo alto de alcohol",
+     "field": "HvyAlcoholConsump",
+     "role": "Predictor",
+     "type": "Cualitativa dicotómica",
+     "definition": "1=Consumo elevado (hombres >14 tragos/sem, mujeres >7), 0=No."
+    }
+   ],
+   "ethics": [
+    "Mostrar únicamente resultados agregados; no inferir diagnósticos médicos automáticos.",
+    "Todos los análisis y calculadoras incluyen avisos de descargo de responsabilidad no diagnóstica.",
+    "Preservar privacidad: sin almacenamiento de información de salud protegida (PII/PHI)."
+   ]
+  },
+  "method": [
+   [
+    "Score Estadístico",
+    "Asignación de puntos basada en Framingham/Sullivan."
+   ],
+   [
+    "Validación",
+    "Comparación con Random Forest y Regresión Logística."
+   ],
+   [
+    "Despliegue",
+    "Tablero interactivo para apoyo a decisiones preventivas."
+   ]
+  ],
+  "recommendation": {
+   "problem": "La proporción de diabetes confirmada es 15.3% en la selección actual.",
+   "finding": "Mayor tasa observada: 37.8% en «Salud general percibida: Mala» (n=11.992).",
+   "action": "Priorizar tamizaje preventivo y derivación con corte score ≥ 7 para evaluación confirmatoria.",
+   "follow_up": "Monitorear cobertura de pruebas HbA1c y porcentaje de casos confirmados derivados a control."
+  },
+  "disclaimer": "Este resultado es una estimación estadística basada en indicadores poblacionales y NO constituye un diagnóstico médico. Consulte siempre a un profesional de la salud."
+ },
+ "score_summary": {
+  "status": "ok",
+  "method": "Sullivan et al. (Framework Framingham basado en Odds Ratios)",
+  "population_n": 224364,
+  "score_min": -2,
+  "score_max": 18,
+  "score_mean": 6.53,
+  "derivation_cutoff": 7,
+  "cutoffs": [
+   6,
+   9,
+   12
+  ],
+  "derived_patients": 108451,
+  "derived_pct": 48.3,
+  "metrics": {
+   "sensitivity": 85.5,
+   "specificity": 58.5,
+   "ppv": 27.5,
+   "npv": 95.6,
+   "auc": 0.7976,
+   "detected_diabetics": 29867,
+   "total_diabetics": 34926,
+   "false_positives": 78584,
+   "true_negatives": 110854
+  },
+  "risk_distribution": [
+   {
+    "level": "Bajo",
+    "range": "≤6 pts",
+    "n": 115913,
+    "cases": 5059,
+    "prevalence": 4.4,
+    "population_pct": 51.7
+   },
+   {
+    "level": "Moderado",
+    "range": "7–9 pts",
+    "n": 56450,
+    "cases": 10103,
+    "prevalence": 17.9,
+    "population_pct": 25.2
+   },
+   {
+    "level": "Alto",
+    "range": "10–12 pts",
+    "n": 36137,
+    "cases": 11965,
+    "prevalence": 33.1,
+    "population_pct": 16.1
+   },
+   {
+    "level": "Muy alto",
+    "range": "≥13 pts",
+    "n": 15864,
+    "cases": 7799,
+    "prevalence": 49.2,
+    "population_pct": 7.1
+   }
+  ],
+  "score_table": [
+   {
+    "factor": "f_bmi",
+    "nombre": "IMC",
+    "nivel": 0.0,
+    "n": 75837,
+    "prev_pct": 7.3,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "f_bmi",
+    "nombre": "IMC",
+    "nivel": 1.0,
+    "n": 79924,
+    "prev_pct": 14.3,
+    "or": 2.124,
+    "puntos": 1
+   },
+   {
+    "factor": "f_bmi",
+    "nombre": "IMC",
+    "nivel": 2.0,
+    "n": 41621,
+    "prev_pct": 22.4,
+    "or": 3.685,
+    "puntos": 2
+   },
+   {
+    "factor": "f_bmi",
+    "nombre": "IMC",
+    "nivel": 3.0,
+    "n": 26982,
+    "prev_pct": 32.1,
+    "or": 6.012,
+    "puntos": 2
+   },
+   {
+    "factor": "f_edad",
+    "nombre": "Edad",
+    "nivel": 0.0,
+    "n": 34359,
+    "prev_pct": 3.3,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "f_edad",
+    "nombre": "Edad",
+    "nivel": 1.0,
+    "n": 53351,
+    "prev_pct": 10.9,
+    "or": 3.542,
+    "puntos": 2
+   },
+   {
+    "factor": "f_edad",
+    "nombre": "Edad",
+    "nivel": 2.0,
+    "n": 55571,
+    "prev_pct": 17.7,
+    "or": 6.256,
+    "puntos": 2
+   },
+   {
+    "factor": "f_edad",
+    "nombre": "Edad",
+    "nivel": 3.0,
+    "n": 49808,
+    "prev_pct": 23.2,
+    "or": 8.748,
+    "puntos": 3
+   },
+   {
+    "factor": "f_edad",
+    "nombre": "Edad",
+    "nivel": 4.0,
+    "n": 31275,
+    "prev_pct": 21.0,
+    "or": 7.723,
+    "puntos": 3
+   },
+   {
+    "factor": "f_salud",
+    "nombre": "Salud autopercibida",
+    "nivel": 0.0,
+    "n": 34481,
+    "prev_pct": 3.3,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "f_salud",
+    "nombre": "Salud autopercibida",
+    "nivel": 1.0,
+    "n": 76106,
+    "prev_pct": 8.2,
+    "or": 2.646,
+    "puntos": 1
+   },
+   {
+    "factor": "f_salud",
+    "nombre": "Salud autopercibida",
+    "nivel": 2.0,
+    "n": 71786,
+    "prev_pct": 18.5,
+    "or": 6.695,
+    "puntos": 3
+   },
+   {
+    "factor": "f_salud",
+    "nombre": "Salud autopercibida",
+    "nivel": 3.0,
+    "n": 30349,
+    "prev_pct": 32.0,
+    "or": 13.892,
+    "puntos": 3
+   },
+   {
+    "factor": "f_salud",
+    "nombre": "Salud autopercibida",
+    "nivel": 4.0,
+    "n": 11642,
+    "prev_pct": 38.9,
+    "or": 18.762,
+    "puntos": 4
+   },
+   {
+    "factor": "HighBP",
+    "nombre": "Presion alta",
+    "nivel": 0.0,
+    "n": 123238,
+    "prev_pct": 7.0,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "HighBP",
+    "nombre": "Presion alta",
+    "nivel": 1.0,
+    "n": 101126,
+    "prev_pct": 26.0,
+    "or": 4.642,
+    "puntos": 2
+   },
+   {
+    "factor": "HighChol",
+    "nombre": "Colesterol alto",
+    "nivel": 0.0,
+    "n": 126047,
+    "prev_pct": 9.1,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "HighChol",
+    "nombre": "Colesterol alto",
+    "nivel": 1.0,
+    "n": 98317,
+    "prev_pct": 23.8,
+    "or": 3.101,
+    "puntos": 2
+   },
+   {
+    "factor": "DiffWalk",
+    "nombre": "Dificultad para caminar",
+    "nivel": 0.0,
+    "n": 183290,
+    "prev_pct": 12.0,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "DiffWalk",
+    "nombre": "Dificultad para caminar",
+    "nivel": 1.0,
+    "n": 41074,
+    "prev_pct": 31.6,
+    "or": 3.402,
+    "puntos": 2
+   },
+   {
+    "factor": "HeartDiseaseorAttack",
+    "nombre": "Enfermedad cardiaca",
+    "nivel": 0.0,
+    "n": 201381,
+    "prev_pct": 13.5,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "HeartDiseaseorAttack",
+    "nombre": "Enfermedad cardiaca",
+    "nivel": 1.0,
+    "n": 22983,
+    "prev_pct": 34.0,
+    "or": 3.317,
+    "puntos": 2
+   },
+   {
+    "factor": "Stroke",
+    "nombre": "Derrame previo",
+    "nivel": 0.0,
+    "n": 214376,
+    "prev_pct": 14.8,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "Stroke",
+    "nombre": "Derrame previo",
+    "nivel": 1.0,
+    "n": 9988,
+    "prev_pct": 32.6,
+    "or": 2.789,
+    "puntos": 1
+   },
+   {
+    "factor": "PhysActivity",
+    "nombre": "Actividad fisica",
+    "nivel": 0.0,
+    "n": 59488,
+    "prev_pct": 21.7,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "PhysActivity",
+    "nombre": "Actividad fisica",
+    "nivel": 1.0,
+    "n": 164876,
+    "prev_pct": 13.3,
+    "or": 0.554,
+    "puntos": -1
+   },
+   {
+    "factor": "HvyAlcoholConsump",
+    "nombre": "Consumo alto de alcohol",
+    "nivel": 0.0,
+    "n": 210652,
+    "prev_pct": 16.2,
+    "or": 1.0,
+    "puntos": 0
+   },
+   {
+    "factor": "HvyAlcoholConsump",
+    "nombre": "Consumo alto de alcohol",
+    "nivel": 1.0,
+    "n": 13712,
+    "prev_pct": 6.1,
+    "or": 0.334,
+    "puntos": -1
+   }
+  ],
+  "calibration_constant_b": 0.7532,
+  "disclaimer": "Este resultado es una estimación estadística basada en indicadores poblacionales y NO constituye un diagnóstico médico. Consulte siempre a un profesional de la salud."
+ }
+}

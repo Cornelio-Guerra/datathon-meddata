@@ -1,0 +1,2 @@
+# Sin dependencias: la funcion usa solo la libreria estandar de Python.
+# No agregar pandas ni scikit-learn aqui (eso va en el requirements.txt de la raiz).
