@@ -174,6 +174,38 @@ cd dashboard && python app.py      # http://localhost:8000
 > La primera carga procesa 253,680 registros y tarda ~10 s; a partir de ahí es
 > instantánea gracias al caché.
 
+### Despliegue en Vercel
+
+El repositorio ya trae la configuración (`vercel.json`). En Vercel no se sube el
+CSV a las funciones ni se ejecuta `src/score_diabetes.py`:
+
+| Ruta | Qué responde en Vercel |
+|---|---|
+| `/` | `dashboard/static/` tal cual |
+| `GET /api/dashboard` y `GET /api/score/summary` | `outputs/dashboard_snapshot.json`, leído por `api/snapshot.py` |
+| `POST /api/score/calculate` | `api/score/calculate.py`, que reutiliza `calculate_patient_score()` |
+
+El snapshot es la vista sin filtros de la población analizada, así que en la
+URL pública los filtros quedan deshabilitados con una nota. Las funciones no
+instalan dependencias (`api/requirements.txt` está vacío a propósito).
+
+Pasos que faltan, desde la cuenta de Vercel:
+
+1. En vercel.com, **Add New → Project** e importar `Cornelio-Guerra/datathon-meddata`.
+2. Framework Preset **Other** y Root Directory en la raíz del repositorio (`./`).
+   Dejar vacíos los comandos de build, install y output: los fija `vercel.json`.
+3. Rama de producción `main`. No hace falta ninguna variable de entorno.
+4. Probar la URL: KPIs iguales a este README, la calculadora con el caso del
+   issue #5 (10 puntos, nivel Alto; en el formulario la edad va en años: 60) y que `/data/diabetes_012_health_indicators_BRFSS2015.csv`
+   responda 404.
+
+Si cambian el CSV, `src/score_diabetes.py` o `dashboard/app.py`, hay que
+regenerar el snapshot y commitearlo:
+
+```bash
+.venv/bin/python dashboard/generar_snapshot.py
+```
+
 ## Estructura
 
 ```
@@ -181,7 +213,8 @@ src/score_diabetes.py                  motor de puntuación (sin dependencias de
 notebooks/analisis_cornelio.ipynb      análisis completo y hallazgos
 notebooks/analisis/analisis_jesus.ipynb análisis complementario
 dashboard/                             dashboard interactivo
-outputs/                               gráficas y tabla de puntuación
+api/, vercel.json                      despliegue en Vercel (calculadora y snapshot)
+outputs/                               gráficas, tabla de puntuación y snapshot del dashboard
 USO_DE_IA.md                           declaración de uso de IA (exigida por el reglamento)
 ```
 

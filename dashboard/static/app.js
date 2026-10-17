@@ -1,4 +1,5 @@
-const state = { data: null, filters: {} };
+// snapshot: metadatos de la vista fija (despliegue en Vercel); null con el servidor local.
+const state = { data: null, filters: {}, snapshot: null };
 
 const byId = (id) => document.getElementById(id);
 const formatNumber = new Intl.NumberFormat("es-PA");
@@ -148,13 +149,37 @@ function renderFilters(filters) {
       select.append(option);
     }
     select.value = state.filters[filter.id] || "Todos";
+    select.disabled = Boolean(state.snapshot);
     select.addEventListener("change", () => {
+      if (state.snapshot) return;
       state.filters[filter.id] = select.value;
       refresh();
     });
     label.append(select);
     container.append(label);
   }
+}
+
+// En Vercel /api/dashboard responde un JSON precalculado (outputs/dashboard_snapshot.json)
+// que trae la clave "snapshot". Esa vista no se puede filtrar: se deshabilitan los
+// controles y se explica por qué. Con dashboard/app.py la clave no existe y todo sigue igual.
+function renderSnapshotMode(data) {
+  const fixed = Boolean(data.snapshot);
+  for (const select of document.querySelectorAll("#filter-fields select")) select.disabled = fixed;
+  byId("reset-filters").disabled = fixed;
+  let note = byId("snapshot-note");
+  if (!fixed) {
+    note?.remove();
+    return;
+  }
+  if (!note) {
+    note = create("p", "snapshot-note");
+    note.id = "snapshot-note";
+    note.setAttribute("role", "note");
+    document.querySelector(".filter-panel > div").append(note);
+  }
+  note.textContent = `Vista fija de la población depurada (${formatNumber.format(data.selection.n)} registros, sin filtros). `
+    + "Los filtros solo funcionan al ejecutar el dashboard en local con dashboard/app.py.";
 }
 
 function renderKpis(kpis) {
@@ -371,9 +396,11 @@ function renderMethod(method) {
 
 function render(data) {
   state.data = data;
-  byId("source-pill").textContent = `${data.dataset.name} · ${data.dataset.source}${data.dataset.fallback ? " · fuente temporal" : ""}`;
+  state.snapshot = data.snapshot || null;
+  byId("source-pill").textContent = `${data.dataset.name} · ${data.dataset.source}${data.dataset.fallback ? " · fuente temporal" : ""}${state.snapshot ? " · vista fija" : ""}`;
   byId("footer-source").textContent = `Fuente: ${data.dataset.source}`;
   renderFilters(data.filters);
+  renderSnapshotMode(data);
   renderProtocol(data.protocol);
   renderKpis(data.kpis);
   renderDecision(data.recommendation);
@@ -406,13 +433,14 @@ async function refresh() {
     card.append(
       create("h1", "", "El tablero no pudo cargar los datos"),
       create("p", "", error.message),
-      create("p", "", "Verifica que haya un CSV compatible dentro de data/ y vuelve a intentar."),
+      create("p", "", "En local, verifica que haya un CSV compatible dentro de data/. En Vercel, que outputs/dashboard_snapshot.json esté publicado."),
     );
     document.querySelector("main").replaceWith(card);
   }
 }
 
 byId("reset-filters").addEventListener("click", () => {
+  if (state.snapshot) return;
   state.filters = {};
   for (const select of document.querySelectorAll("#filter-fields select")) select.value = "Todos";
   refresh();
