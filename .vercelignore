@@ -1,0 +1,8 @@
+# Segunda capa ademas de functions.excludeFiles en vercel.json: estos archivos
+# no entran al build de Vercel. No listar api/, dashboard/, outputs/ ni vercel.json.
+/data
+/notebooks
+/docs
+/tests
+/capturas
+/.venv

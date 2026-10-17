@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": "dashboard/static",
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{data,notebooks,tests,capturas,docs,src,.venv}/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/dashboard", "destination": "/api/snapshot?view=dashboard" },
+    { "source": "/api/score/summary", "destination": "/api/snapshot?view=score_summary" }
+  ]
+}

@@ -9,3 +9,4 @@ outputs/*.png
 .vscode/
 *.code-workspace
 *.docx
+.vercel/
