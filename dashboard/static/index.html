@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0b3b45" />
     <meta name="description" content="Tablero de toma de decisiones para analizar indicadores asociados a diabetes." />
     <title>MedData | Decisiones sobre diabetes</title>
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <a class="skip-link" href="#principal">Ir al contenido principal</a>
@@ -83,6 +83,15 @@
             <label class="filter-control"><span>Enf. Cardíaca</span>
               <select id="calc-heart"><option value="0">No</option><option value="1">Sí</option></select>
             </label>
+            <label class="filter-control"><span>Derrame previo (ACV)</span>
+              <select id="calc-stroke"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
+            <label class="filter-control"><span>Actividad física (30 días)</span>
+              <select id="calc-activity"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
+            <label class="filter-control"><span>Consumo alto de alcohol</span>
+              <select id="calc-alcohol"><option value="0">No</option><option value="1">Sí</option></select>
+            </label>
           </div>
           <button type="submit" class="calc-button">Calcular Riesgo</button>
         </form>
@@ -90,6 +99,8 @@
           <h3>Resultado del Score</h3>
           <div class="score-val" id="calc-score-val">--</div>
           <p id="calc-score-desc">--</p>
+          <p id="calc-score-action">--</p>
+          <p class="micro-note" id="calc-disclaimer"></p>
         </div>
       </section>
 
@@ -257,6 +268,6 @@
 
     <footer>MedData Challenge · Análisis exploratorio y apoyo a decisiones · <span id="footer-source">—</span></footer>
     <template id="loading-template"><div class="loading">Actualizando indicadores…</div></template>
-    <script src="app.js?v=6" defer></script>
+    <script src="app.js?v=7" defer></script>
   </body>
 </html>

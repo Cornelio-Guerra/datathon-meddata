@@ -435,7 +435,10 @@ if (calcForm) {
         HighChol: parseInt(byId("calc-chol").value, 10),
         GenHlth: parseInt(byId("calc-genhlth").value, 10),
         DiffWalk: parseInt(byId("calc-diffwalk").value, 10),
-        HeartDiseaseorAttack: parseInt(byId("calc-heart").value, 10)
+        HeartDiseaseorAttack: parseInt(byId("calc-heart").value, 10),
+        Stroke: parseInt(byId("calc-stroke").value, 10),
+        PhysActivity: parseInt(byId("calc-activity").value, 10),
+        HvyAlcoholConsump: parseInt(byId("calc-alcohol").value, 10)
       };
 
       const response = await fetch("/api/score/calculate", {
@@ -447,8 +450,10 @@ if (calcForm) {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Error al calcular el score.");
       
-      byId("calc-score-val").textContent = `${result.score} pts`;
-      byId("calc-score-desc").textContent = `Nivel de riesgo: ${result.risk_level} (${formatRate(result.probability * 100)} probabilidad estimada)`;
+      byId("calc-score-val").textContent = `${result.total_score} pts`;
+      byId("calc-score-desc").textContent = `Nivel de riesgo: ${result.risk_level} · prevalencia observada en ese nivel: ${formatRate(result.expected_prevalence_pct)}`;
+      byId("calc-score-action").textContent = `${result.derivation_recommended ? "Derivar a prueba confirmatoria" : "Sin derivación"} (corte ≥ ${result.derivation_cutoff} pts). ${result.action_note}`;
+      byId("calc-disclaimer").textContent = result.disclaimer;
       byId("calc-result").style.display = "block";
     } catch (error) {
       alert(error.message);
